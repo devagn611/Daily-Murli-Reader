@@ -1,14 +1,14 @@
-
+import React from 'react';
 import Header from "./components/Header";
-import InputArea from "./components/InputArea";
+import Footer from "./components/Footer";
+import MurliContainer from "./components/MurliContainer"; // Assuming MurliContainer is in this path
 
 function App() {
-
-
   return (
     <>
       <Header />
-      <InputArea/>
+      <MurliContainer /> {/* Include the MurliContainer here */}
+      <Footer />
     </>
   );
 }
