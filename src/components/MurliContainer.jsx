@@ -184,7 +184,7 @@ function MurliContainer() {
 
           {/* Audio Player */}
           <div className="w-full lg:flex-1 lg:max-w-md lg:mx-4">
-            <OptimizedAudioPlayer src={audioSrc} />
+           {audioSrc && <OptimizedAudioPlayer src={audioSrc} />}
           </div>
 
           {/* Action Buttons */}

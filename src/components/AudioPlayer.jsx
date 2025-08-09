@@ -7,6 +7,13 @@ const OptimizedAudioPlayer = ({ src }) => {
   const [hasError, setHasError] = useState(false);
   const audioRef = useRef(null);
 
+  useEffect(() => {
+    if (src) {
+      setHasError(false);
+      setIsLoading(true);
+    }
+  }, [src]);
+
   if (!src) {
     return null;
   }
