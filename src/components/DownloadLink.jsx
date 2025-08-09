@@ -1,13 +1,15 @@
 import React from 'react';
+import { Download } from 'lucide-react';
 
 const DownloadLink = React.memo(({ downloadUrl }) => (
   <a
     href={downloadUrl}
     target="_blank"
     rel="noopener noreferrer"
-    className="murli-link p-2 bg-green-500 text-white rounded-md shadow-sm hover:bg-green-600"
+    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+    title="Download PDF"
   >
-    Download
+    <Download className="h-5 w-5" />
   </a>
 ));
 

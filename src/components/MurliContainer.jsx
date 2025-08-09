@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calendar, Download, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
+import { Calendar, Download, ZoomIn, ZoomOut, RefreshCw,FileAudio } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import DateSelector from './DateSelector';
+import DownloadLink from './DownloadLink';
+import OptimizedAudioPlayer from './AudioPlayer';
+
 
 const FONT_SIZE_STEP = 2;
 const DEFAULT_FONT_SIZE = 18;
@@ -9,6 +13,7 @@ const MIN_FONT_SIZE = 12;
 
 function MurliContainer() {
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  
   const [language, setLanguage] = useState('gu');
   const [murliContent, setMurliContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -67,23 +72,20 @@ function MurliContainer() {
     []
   );
 
+  const audioSrc = useMemo(
+    () => `https://madhubanmurli.org/murlis/${language}/mp3/murli-${date}.mp3`,
+    [language, date]
+  );
+
   return (
     <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-colors duration-300">
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           {/* Date and Language Selectors */}
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="date"
-                value={date}
-                onChange={handleDateChange}
-                className="pl-10 pr-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <DateSelector date={date} onDateChange={handleDateChange} />
             <Select onValueChange={handleLanguageChange} defaultValue={language}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
               <SelectContent>
@@ -96,17 +98,14 @@ function MurliContainer() {
             </Select>
           </div>
 
+          {/* Audio Player */}
+          <div className="w-full lg:flex-1 lg:max-w-md lg:mx-4">
+            <OptimizedAudioPlayer src={audioSrc} />
+          </div>
+
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <a
-              href={downloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-              title="Download PDF"
-            >
-              <Download className="h-5 w-5" />
-            </a>
+          <div className="flex items-center justify-center gap-2 sm:justify-start lg:justify-end">
+            <DownloadLink downloadUrl={downloadUrl} />
             <button onClick={increaseFontSize} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Increase font size">
               <ZoomIn className="h-5 w-5" />
             </button>
