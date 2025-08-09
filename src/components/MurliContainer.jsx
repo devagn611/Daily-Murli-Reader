@@ -23,7 +23,7 @@ function MurliContainer() {
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    const texturl = `https://madhubanmurli.org/murlis/${language}/html/murli-${date}.html`;
+    const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
     try {
       const response = await fetch(texturl);
       if (!response.ok) {
@@ -52,7 +52,7 @@ function MurliContainer() {
   const resetFontSize = () => setFontSize(DEFAULT_FONT_SIZE);
 
   const downloadUrl = useMemo(
-    () => `https://madhubanmurli.org/murlis/${language}/pdf/murli-${date}.pdf`,
+    () => `${import.meta.env.VITE_API_URL}/${language}/pdf/murli-${date}.pdf`,
     [language, date]
   );
 
@@ -73,7 +73,7 @@ function MurliContainer() {
   );
 
   const audioSrc = useMemo(
-    () => `https://madhubanmurli.org/murlis/${language}/mp3/murli-${date}.mp3`,
+    () => `${import.meta.env.VITE_API_URL}/${language}/mp3/murli-${date}.mp3`,
     [language, date]
   );
 
