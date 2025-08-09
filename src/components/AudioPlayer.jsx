@@ -46,7 +46,7 @@ const OptimizedAudioPlayer = ({ src }) => {
         </div>
       )}
       
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 p-2">
+      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 p-2 border border-gray-200 dark:border-gray-600">
         <AudioPlayer
           ref={audioRef}
           src={src}
@@ -71,10 +71,10 @@ const OptimizedAudioPlayer = ({ src }) => {
           style={{
             backgroundColor: 'transparent',
             boxShadow: 'none',
-            '--rhap-theme-color': '#ffffff',
+            '--rhap-theme-color': '#3b82f6',
             '--rhap-background-color': 'transparent',
-            '--rhap-bar-color': 'rgba(255, 255, 255, 0.3)',
-            '--rhap-time-color': '#ffffff',
+            '--rhap-bar-color': 'rgba(156, 163, 175, 0.3)',
+            '--rhap-time-color': '#374151',
             '--rhap-font-family': 'inherit',
           }}
         />
