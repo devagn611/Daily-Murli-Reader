@@ -38,7 +38,7 @@ const getMurliData = async (req: Request, res: Response) => {
         // Fetch with browser-like headers
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
             retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
             useRotatingUserAgent: true
@@ -55,7 +55,7 @@ const getMurliData = async (req: Request, res: Response) => {
         //     // Retry with different user agent
         //     const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
         //         method: 'GET',
-        //         timeout: 15000,
+        //         timeout: 1500,
         //         useRandomUserAgent: true
         //     });
             
@@ -147,7 +147,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         // Fetch with browser-like headers (optimized for speed)
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
             retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
             useRotatingUserAgent: true
@@ -215,7 +215,7 @@ const getMurliByDate = async (req: Request, res: Response) => {
         // Fetch with browser-like headers
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
             retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
             useRotatingUserAgent: true
@@ -439,7 +439,7 @@ const getSystemStatus = async (req: Request, res: Response) => {
                 apiBaseUrl: process.env.API_BASE_URL || 'Not configured',
                 rateLimitEnabled: true,
                 maxRetries: 3,
-                defaultTimeout: 15000
+                defaultTimeout: 1500
             }
         });
         

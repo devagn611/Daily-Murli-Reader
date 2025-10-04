@@ -1,22 +1,16 @@
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
 
+# Redirect all requests to the Express app running on Netlify
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/index/:splat"
+  from = "/*"
+  to = "/.netlify/functions/api/:splat"
   status = 200
 
 [functions]
-  # Increase timeout for functions (max 26 seconds on Netlify)
-  timeout = 26
-  # Set memory allocation
-  memory = 1024
-
-# Environment variables (these should be set in Netlify UI)
-[build.processing]
-  skip_processing = false
+  external_node_modules = ["express", "cors", "dotenv"]
+  node_bundler = "esbuild"

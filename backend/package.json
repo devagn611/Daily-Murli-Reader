@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec \"node --loader ts-node/esm\" index.ts",
     "dev:ts": "nodemon --exec \"ts-node --esm\" index.ts",
-    "build": "tsc && mkdir -p dist && npm run copy-files",
-    "copy-files": "cp package.json dist/ && cp .env.example dist/ || true",
+    "build": "tsc",
     "start": "node dist/index.js",
     "netlify-dev": "netlify dev",
     "test": "echo \"Error: no test specified\" && exit 1"
