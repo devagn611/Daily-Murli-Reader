@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/index/:splat"
+  status = 200
+
+[functions]
+  # Increase timeout for functions (max 26 seconds on Netlify)
+  timeout = 26
+  # Set memory allocation
+  memory = 1024
+
+# Environment variables (these should be set in Netlify UI)
+[build.processing]
+  skip_processing = false
