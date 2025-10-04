@@ -22,14 +22,24 @@ function MurliContainer() {
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
+    // const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
     try {
-      const response = await fetch(texturl);
+      const url = "http://localhost:5000/murli/";
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          date: date,
+          language: language
+        })
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const text = await response.text();
-      setMurliContent(text);
+      const data = await response.json();
+      setMurliContent(data.data.content);
     } catch (e) {
       console.error('Error fetching murli:', e);
       setError('Failed to load Murli. Please check your connection or try a different date.');
