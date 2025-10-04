@@ -112,7 +112,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
     console.log('📅 Received POST request for murli data with body:', req.body);
     
     try {
-        const { date, language = 'english' } = req.body;
+        const { date, language = 'hi' } = req.body;
         const targetDate = date || new Date().toISOString().split('T')[0];
 
         if (date && !isValidDate(targetDate)) {
