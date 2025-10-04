@@ -189,7 +189,7 @@ export async function fetchWithBrowserHeaders(
     method = 'GET',
     headers = {},
     body,
-    timeout = 10000,
+    timeout = 15000, // Increased default timeout
     retries = 3,
     retryDelay = 1000,
     useRandomUserAgent = false,
@@ -209,36 +209,52 @@ export async function fetchWithBrowserHeaders(
   const browserHeaders = getDefaultBrowserHeaders(userAgent);
   const finalHeaders = { ...browserHeaders, ...headers };
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  const fetchOptions: RequestInit = {
-    method,
-    headers: finalHeaders,
-    body,
-    signal: controller.signal,
-    redirect: followRedirects ? 'follow' : 'manual'
-  };
-
   for (let attempt = 1; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    let timeoutId: NodeJS.Timeout;
+    
     try {
+      // Set up timeout
+      timeoutId = setTimeout(() => {
+        controller.abort();
+      }, timeout);
+
+      const fetchOptions: RequestInit = {
+        method,
+        headers: finalHeaders,
+        body,
+        signal: controller.signal,
+        redirect: followRedirects ? 'follow' : 'manual'
+      };
+
+      console.log(`🔄 Attempt ${attempt}/${retries} - Fetching: ${url}`);
       const response = await fetch(url, fetchOptions);
+      
       clearTimeout(timeoutId);
+      console.log(`✅ Request successful on attempt ${attempt}`);
       return response;
+      
     } catch (error) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId!);
+      
+      console.log(`⚠️ Attempt ${attempt}/${retries} failed:`, error instanceof Error ? error.message : 'Unknown error');
       
       if (attempt === retries) {
-        throw new Error(`Failed to fetch after ${retries} attempts: ${error}`);
+        // Provide more specific error messages
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            throw new Error(`Request timeout after ${timeout}ms - The external service is taking too long to respond`);
+          } else if (error.message.includes('fetch')) {
+            throw new Error(`Network error: Unable to connect to the external service`);
+          }
+        }
+        throw new Error(`Failed to fetch after ${retries} attempts: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
       
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
-      
-      // Reset timeout for next attempt
-      const newController = new AbortController();
-      const newTimeoutId = setTimeout(() => newController.abort(), timeout);
-      fetchOptions.signal = newController.signal;
+      // Wait before retrying with exponential backoff
+      const delay = retryDelay * Math.pow(2, attempt - 1);
+      console.log(`⏳ Waiting ${delay}ms before retry...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 

@@ -38,9 +38,9 @@ const getMurliData = async (req: Request, res: Response) => {
         // Fetch with browser-like headers
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: 1500,
-            retries: 3,
-            retryDelay: 2000,
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
+            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
             useRotatingUserAgent: true
         });
 
@@ -55,7 +55,7 @@ const getMurliData = async (req: Request, res: Response) => {
         //     // Retry with different user agent
         //     const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
         //         method: 'GET',
-        //         timeout: 15000,
+        //         timeout: 1500,
         //         useRandomUserAgent: true
         //     });
             
@@ -99,10 +99,27 @@ const getMurliData = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('❌ Error fetching murli data:', error);
         
-        res.status(500).json({
+        // Specific error handling for common issues
+        let statusCode = 500;
+        let errorMessage = 'Unknown error occurred';
+        
+        if (error instanceof Error) {
+            if (error.message.includes('timeout') || error.message.includes('AbortError')) {
+                statusCode = 408; // Request Timeout
+                errorMessage = 'Request timed out. The external service is taking too long to respond.';
+            } else if (error.message.includes('fetch')) {
+                statusCode = 503; // Service Unavailable
+                errorMessage = 'External service is currently unavailable. Please try again later.';
+            } else {
+                errorMessage = error.message;
+            }
+        }
+        
+        res.status(statusCode).json({
             error: 'Failed to fetch murli data',
-            message: error instanceof Error ? error.message : 'Unknown error occurred',
-            timestamp: new Date().toISOString()
+            message: errorMessage,
+            timestamp: new Date().toISOString(),
+            requestId: Math.random().toString(36).substring(7) // For debugging
         });
     }
 };
@@ -130,9 +147,9 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         // Fetch with browser-like headers (optimized for speed)
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: 5000,
-            retries: 2,
-            retryDelay: 800,
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
+            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
             useRotatingUserAgent: true
         });
 
@@ -198,9 +215,9 @@ const getMurliByDate = async (req: Request, res: Response) => {
         // Fetch with browser-like headers
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: 15000,
-            retries: 3,
-            retryDelay: 2000,
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
+            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
             useRotatingUserAgent: true
         });
 
@@ -212,7 +229,7 @@ const getMurliByDate = async (req: Request, res: Response) => {
             // Retry with different approach
             const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
                 method: 'GET',
-                timeout: 20000,
+                timeout: parseInt(process.env.REQUEST_TIMEOUT || '20000'),
                 useRandomUserAgent: true,
                 retries: 2
             });
@@ -422,7 +439,7 @@ const getSystemStatus = async (req: Request, res: Response) => {
                 apiBaseUrl: process.env.API_BASE_URL || 'Not configured',
                 rateLimitEnabled: true,
                 maxRetries: 3,
-                defaultTimeout: 15000
+                defaultTimeout: 1500
             }
         });
         
