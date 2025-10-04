@@ -24,7 +24,7 @@ function MurliContainer() {
     setError(null);
     // const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
     try {
-      const url = "http://localhost:5000/murli/";
+      const url = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/murli/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
