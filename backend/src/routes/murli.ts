@@ -50,62 +50,30 @@ const getMurliData = async (req: Request, res: Response) => {
         //     }
         // });
 
-        const response = Promise.resolve(fetch(murliUrl, {
+        const response = await fetch(murliUrl, {
             method: 'GET',
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'en-US,en;q=0.9',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Cache-Control': 'no-cache',
+                'DNT': '1',
                 'Referer': 'https://madhubanmurli.org/',
-                'Origin': 'https://madhubanmurli.org'
-            },
-            // Setting a timeout using AbortController
-        })).then(res => {
-            console.log('✅ Fetched murli URL:','Status:', res.status);
-            return res;
-        }).catch(err => {
-            console.log('❌ Fetch error:', err);
-            throw err;
+                'Origin': 'https://madhubanmurli.org',
+                'Upgrade-Insecure-Requests': '1'
+            }
         });
 
-        // Read the response content once
-        const content = (await response).text();
+        console.log('✅ Fetched murli URL - Status:', response.status, response.statusText);
         
-        // Check if response indicates blocking
-        // if (await isBlockedResponse(response)) {
-        //     console.log('⚠️ Detected potential blocking, adjusting strategy...');
-        //     await getRandomDelay(2000, 5000);
-            
-        //     // Retry with different user agent
-        //     const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
-        //         method: 'GET',
-        //         timeout: 1500,
-        //         useRandomUserAgent: true
-        //     });
-            
-        //     if (!retryResponse.ok) {
-        //         throw new Error(`HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
-        //     }
-            
-        //     const retryContent = await retryResponse.text();
-        //     return res.json({
-        //         message: 'Murli data fetched successfully (retry)',
-        //         filters: { date: targetDate, language },
-        //         data: {
-        //             title: `Murli for ${targetDate}`,
-        //             date: targetDate,
-        //             content: retryContent,
-        //             language: language as string,
-        //             fetchedAt: new Date().toISOString(),
-        //             source: murliUrl
-        //         }
-        //     });
-        // }
-
-        // Check if response is successful
-        if (!(await response).ok) {
-            throw new Error(`HTTP ${(await response).status}: ${(await response).statusText}`);
+        // Check if response is successful first
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        // Read the response content once
+        const content = await response.text();
 
         res.json({
             message: 'Murli data fetched successfully',
@@ -185,31 +153,30 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         //         'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
         //     }
         // });
-        const response = Promise.resolve(fetch(murliUrl, {
+        const response = await fetch(murliUrl, {
             method: 'GET',
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'en-US,en;q=0.9',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Cache-Control': 'no-cache',
+                'DNT': '1',
                 'Referer': 'https://madhubanmurli.org/',
-                'Origin': 'https://madhubanmurli.org'
-            },
-            // Setting a timeout using AbortController
-        })).then(res => {
-            console.log('✅ Fetched murli URL:',res?.text(),'Status:', res.status);
-            return res;
-        }).catch(err => {
-            console.log('❌ Fetch error:', err);
-            throw err;
+                'Origin': 'https://madhubanmurli.org',
+                'Upgrade-Insecure-Requests': '1'
+            }
         });
 
-        // Read the response content once
-        const content = await (await response).text();
+        console.log('✅ Fetched murli URL - Status:', response.status, response.statusText);
         
-        // Check if response is successful
-        if (!(await response).ok) {
-            throw new Error(`HTTP ${(await response).status}: ${(await response).statusText}`);
+        // Check if response is successful first
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        // Read the response content once
+        const content = await response.text();
         
 
         res.json({
