@@ -196,7 +196,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
             },
             // Setting a timeout using AbortController
         })).then(res => {
-            console.log('✅ Fetched murli URL:','Status:', res.status);
+            console.log('✅ Fetched murli URL:',res?.text(),'Status:', res.status);
             return res;
         }).catch(err => {
             console.log('❌ Fetch error:', err);
