@@ -28,7 +28,7 @@ function MurliContainer() {
     try {
       let response, html;
       
-      if (useBackend) {
+      if (!useBackend) {
         // Use backend API
         const backendUrl = 
         // import.meta.env.NODE_ENV === 'production' ? 
