@@ -191,7 +191,7 @@ function MurliContainer() {
   );
 
   const audioSrc = useMemo(
-    () => `${import.meta.env.VITE_API_URL}/${language}/mp3/murli-${date}.mp3`,
+    () => `${import.meta.env.VITE_API_URL}/hi/mp3/murli-${date}.mp3`,
     [language, date]
   );
 
