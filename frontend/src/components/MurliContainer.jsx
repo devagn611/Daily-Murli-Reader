@@ -22,30 +22,41 @@ function MurliContainer() {
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
+    
+    const bypassParam = Date.now() + Math.floor(Math.random() * 1000);
+    const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html?_bypass=${bypassParam}`;
+    
     try {
-      // const url = `https://murli-backend.netlify.app/murli/`;
-      // const response = await fetch(url, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     date: date,
-      //     language: language
-      //   })
-      // });
       const response = await fetch(texturl, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br, zstd',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Cache-Control': 'no-cache',
+          'DNT': '1',
+          'Priority': 'u=1, i',
+          'Referer': 'https://madhubanmurli.org/',
+          'Sec-CH-UA': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+          'Sec-CH-UA-Mobile': '?0',
+          'Sec-CH-UA-Platform': '"Linux"',
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
+          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
         },
+        credentials: 'include', // Include cookies like the browser does
+        mode: 'cors'
       });
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      setMurliContent(data.data.content);
+      
+      // The response will be HTML content directly, not JSON
+      const htmlContent = await response.text();
+      setMurliContent(htmlContent);
+      
     } catch (e) {
       console.error('Error fetching murli:', e);
       setError('Failed to load Murli. Please check your connection or try a different date.');
@@ -152,7 +163,7 @@ function MurliContainer() {
   };
 
   const downloadUrl = useMemo(
-    () => `${import.meta.env.VITE_API_URL}/${language}/pdf/murli-${date}.pdf`,
+    () => `https://madhubanmurli.org/murlis/${language}/pdf/murli-${date}.pdf`,
     [language, date]
   );
 
@@ -173,7 +184,7 @@ function MurliContainer() {
   );
 
   const audioSrc = useMemo(
-    () => `${import.meta.env.VITE_API_URL}/${language}/mp3/murli-${date}.mp3`,
+    () => `https://madhubanmurli.org/murlis/${language}/mp3/murli-${date}.mp3`,
     [language, date]
   );
 
