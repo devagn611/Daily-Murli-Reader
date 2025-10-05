@@ -22,18 +22,24 @@ function MurliContainer() {
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    // const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
+    const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
     try {
-      const url = `https://murli-backend.netlify.app/murli/`;
-      const response = await fetch(url, {
-        method: 'POST',
+      // const url = `https://murli-backend.netlify.app/murli/`;
+      // const response = await fetch(url, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     date: date,
+      //     language: language
+      //   })
+      // });
+      const response = await fetch(texturl, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          date: date,
-          language: language
-        })
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
