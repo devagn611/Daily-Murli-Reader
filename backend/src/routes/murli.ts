@@ -36,22 +36,40 @@ const getMurliData = async (req: Request, res: Response) => {
         await getRandomDelay(700, 1200);
 
         // Fetch with enhanced browser-like headers and longer timeout
-        const response = await fetchWithBrowserHeaders(murliUrl, {
+        // const response = await fetchWithBrowserHeaders(murliUrl, {
+        //     method: 'GET',
+        //     timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
+        //     retries: parseInt(process.env.REQUEST_RETRIES || '3'),
+        //     retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
+        //     useRandomUserAgent: true, // Use random instead of rotating for better variety
+        //     headers: {
+        //         'Referer': 'https://madhubanmurli.org/',
+        //         'Origin': 'https://madhubanmurli.org',
+        //         'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
+        //         'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
+        //     }
+        // });
+
+        const response = Promise.resolve(fetch(murliUrl, {
             method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
-            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
-            useRandomUserAgent: true, // Use random instead of rotating for better variety
             headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Referer': 'https://madhubanmurli.org/',
-                'Origin': 'https://madhubanmurli.org',
-                'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
-                'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
-            }
+                'Origin': 'https://madhubanmurli.org'
+            },
+            // Setting a timeout using AbortController
+        })).then(res => {
+            console.log('✅ Fetched murli URL:','Status:', res.status);
+            return res;
+        }).catch(err => {
+            console.log('❌ Fetch error:', err);
+            throw err;
         });
 
         // Read the response content once
-        const content = await response.text();
+        const content = (await response).text();
         
         // Check if response indicates blocking
         // if (await isBlockedResponse(response)) {
@@ -85,8 +103,8 @@ const getMurliData = async (req: Request, res: Response) => {
         // }
 
         // Check if response is successful
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        if (!(await response).ok) {
+            throw new Error(`HTTP ${(await response).status}: ${(await response).statusText}`);
         }
 
         res.json({
