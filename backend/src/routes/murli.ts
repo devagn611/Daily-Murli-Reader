@@ -10,7 +10,7 @@ import {
 
 // Get all murlis or filter by date
 const getMurliData = async (req: Request, res: Response) => {
-    console.log('📅 Received request for murli data with query:', req.query);
+    console.log('📅 GET Received request for murli data with query:', req.query);
     
     try {
         const { date, language = 'hi' } = req.query;
@@ -32,16 +32,22 @@ const getMurliData = async (req: Request, res: Response) => {
         const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${targetDate}.html`;
        
 
-        // Add human-like delay
-        // await getRandomDelay(500, 1500);
+        // Add human-like delay to appear more natural
+        await getRandomDelay(700, 1200);
 
-        // Fetch with browser-like headers
+        // Fetch with enhanced browser-like headers and longer timeout
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
             timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
-            useRotatingUserAgent: true
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
+            useRandomUserAgent: true, // Use random instead of rotating for better variety
+            headers: {
+                'Referer': 'https://madhubanmurli.org/',
+                'Origin': 'https://madhubanmurli.org',
+                'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
+                'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
+            }
         });
 
         // Read the response content once
@@ -140,17 +146,26 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         }
 
         // Construct the URL for fetching murli data
-        const baseUrl = process.env.API_BASE_URL || 'https://www.brahmakumaris.org';
+        const baseUrl = process.env.API_BASE_URL || 'https://madhubanmurli.org';
         const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${targetDate}.html`;
         
 
-        // Fetch with browser-like headers (optimized for speed)
+        // Add delay to avoid being detected as bot
+        await getRandomDelay(1000, 1200);
+        
+        // Fetch with enhanced browser-like headers 
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
             timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
-            useRotatingUserAgent: true
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
+            useRandomUserAgent: true,
+            headers: {
+                'Referer': 'https://madhubanmurli.org/',
+                'Origin': 'https://madhubanmurli.org',
+                'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
+                'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
+            }
         });
 
         // Read the response content once
@@ -204,7 +219,7 @@ const getMurliByDate = async (req: Request, res: Response) => {
         await globalRateLimiter.waitIfNeeded();
 
         // Construct the URL for fetching specific murli
-        const baseUrl = process.env.API_BASE_URL || 'https://www.brahmakumaris.org';
+        const baseUrl = process.env.API_BASE_URL || 'https://madhubanmurli.org';
         const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${date}.html`;
         
         console.log(`🔍 Fetching specific murli for ${date} from: ${murliUrl}`);
@@ -212,19 +227,25 @@ const getMurliByDate = async (req: Request, res: Response) => {
         // Add human-like delay
         await getRandomDelay(500, 1500);
 
-        // Fetch with browser-like headers
+        // Fetch with enhanced browser-like headers
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
             timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '2000'),
-            useRotatingUserAgent: true
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
+            useRandomUserAgent: true,
+            headers: {
+                'Referer': 'https://madhubanmurli.org/',
+                'Origin': 'https://madhubanmurli.org',
+                'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
+                'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
+            }
         });
 
         // Check if response indicates blocking
         if (await isBlockedResponse(response)) {
             console.log('⚠️ Detected potential blocking, implementing fallback strategy...');
-            await getRandomDelay(3000, 6000);
+            await getRandomDelay(1000, 1500);
             
             // Retry with different approach
             const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
@@ -313,7 +334,7 @@ const getAvailableLanguages = async (req: Request, res: Response) => {
         ];
 
         // You could also validate language availability by making test requests
-        // const baseUrl = process.env.API_BASE_URL || 'https://www.brahmakumaris.org';
+        // const baseUrl = process.env.API_BASE_URL || 'https://madhubanmurli.org';
         // const testDate = new Date().toISOString().split('T')[0];
         
 
@@ -357,7 +378,7 @@ const testUserAgent = async (req: Request, res: Response) => {
         
         for (const test of tests) {
             try {
-                await getRandomDelay(1000, 2000);
+                await getRandomDelay(1000, 1200);
                 
                 const response = await fetchWithBrowserHeaders(testUrl, {
                     method: 'GET',
