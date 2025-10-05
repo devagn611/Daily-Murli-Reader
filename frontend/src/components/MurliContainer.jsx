@@ -30,9 +30,10 @@ function MurliContainer() {
       
       if (useBackend) {
         // Use backend API
-        const backendUrl = import.meta.env.NODE_ENV === 'production' 
-          ? `https://murli-backend.netlify.app/murli/` 
-          : `http://localhost:5000/murli/`;
+        const backendUrl = 
+        // import.meta.env.NODE_ENV === 'production' ? 
+          `https://murli-backend.netlify.app/murli/` 
+          // : `http://localhost:5000/murli/`;
           
         response = await fetch(backendUrl, {
           method: 'POST',
