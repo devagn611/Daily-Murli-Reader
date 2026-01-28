@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import DateSelector from './DateSelector';
 import OptimizedAudioPlayer from './AudioPlayer';
 import { fetchMurliWithCache } from '../utils/murliApi';
+import { MURLI_BASE_URL } from '../utils/murliApi';
 
 
 const FONT_SIZE_STEP = 2;
@@ -39,7 +40,7 @@ function MurliContainer() {
       if (e && typeof e === 'object' && 'isCloudflareChallenge' in e) {
         const cfError = e;
         setError(
-          'Cloudflare security check detected. ' +
+          'Security check detected. ' +
           'Please open madhubanmurli.org in a separate tab, complete any security check, ' +
           'then return here and click Retry.'
         );
@@ -149,7 +150,7 @@ function MurliContainer() {
   };
 
   const downloadUrl = useMemo(
-    () => `${import.meta.env.VITE_API_URL}/${language}/pdf/murli-${date}.pdf`,
+    () => `${MURLI_BASE_URL}/${language}/pdf/murli-${date}.pdf`,
     [language, date]
   );
 
@@ -170,7 +171,7 @@ function MurliContainer() {
   );
 
   const audioSrc = useMemo(
-    () => `${import.meta.env.VITE_API_URL}/hi/mp3/murli-${date}.mp3`,
+    () => `${MURLI_BASE_URL}/hi/mp3/murli-${date}.mp3`,
     [language, date]
   );
 

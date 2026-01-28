@@ -3,7 +3,7 @@
  * This bypasses Cloudflare challenges by using the browser's cookies and session
  */
 
-const MURLI_BASE_URL = 'https://madhubanmurli.org';
+export const MURLI_BASE_URL = 'https://madhubanmurli.org';
 
 export interface MurliFetchOptions {
   date: string;
