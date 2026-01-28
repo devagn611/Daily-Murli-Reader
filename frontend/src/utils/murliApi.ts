@@ -51,19 +51,7 @@ export async function fetchMurli(options: MurliFetchOptions): Promise<MurliFetch
 
   try {
     // Use fetch with CORS mode - browser will automatically send cookies (including cf_clearance)
-    const response = await fetch(murliUrl, {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'include', // Include cookies
-      headers: {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'DNT': '1',
-        'Referer': 'https://madhubanmurli.org/',
-        'Upgrade-Insecure-Requests': '1',
-      },
-    });
+    const response = await fetch(murliUrl);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
