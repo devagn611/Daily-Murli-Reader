@@ -150,7 +150,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         
 
         // Add delay to avoid being detected as bot
-        await getRandomDelay(1000, 1200);
+        // await getRandomDelay(1000, 1200);
         
         // Fetch with enhanced browser-like headers 
         // const response = await fetchWithBrowserHeaders(murliUrl, {
@@ -181,7 +181,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
             }
         });
 
-        console.log('✅ Fetched murli URL - Status:', response.status, response.statusText);
+        console.log('✅ Fetched murli URL - Status:', response.status, response.statusText , murliUrl , );
         
         // Check if response is successful first
         if (!response.ok) {
