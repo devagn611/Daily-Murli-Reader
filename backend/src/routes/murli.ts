@@ -37,6 +37,10 @@ const getMurliData = async (req: Request, res: Response) => {
 
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
+            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
+            useRotatingUserAgent: true,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'en-US,en;q=0.9',
@@ -166,7 +170,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         //         'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
         //     }
         // });
-        const response = await fetch(murliUrl, {
+        const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

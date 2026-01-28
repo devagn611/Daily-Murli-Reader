@@ -95,7 +95,7 @@ const murliCacheMiddleware = async (req: CacheableRequest, res: Response, next: 
 
     // Check if cached data exists
     const cachedData = murliCache.get(date, language);
-
+    
     if (cachedData) {
       console.log(`✅ Cache HIT for date: ${date}, language: ${language}`);
       
