@@ -37,12 +37,11 @@ const getMurliData = async (req: Request, res: Response) => {
 
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
             retries: parseInt(process.env.REQUEST_RETRIES || '3'),
             retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
             useRotatingUserAgent: true,
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'en-US,en;q=0.9',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Encoding': 'gzip, deflate, br',
@@ -56,43 +55,21 @@ const getMurliData = async (req: Request, res: Response) => {
 
         console.log('✅ Fetched murli URL - Status:', response.status, response.statusText);
         
-        // Check if response indicates blocking
-        // if (await isBlockedResponse(response)) {
-        //     console.log('⚠️ Detected potential blocking, adjusting strategy...');
-        //     await getRandomDelay(2000, 5000);
-            
-        //     // Retry with different user agent
-        //     const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
-        //         method: 'GET',
-        //         timeout: 1500,
-        //         useRandomUserAgent: true
-        //     });
-            
-        //     if (!retryResponse.ok) {
-        //         throw new Error(`HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
-        //     }
-            
-        //     const retryContent = await retryResponse.text();
-        //     return res.json({
-        //         message: 'Murli data fetched successfully (retry)',
-        //         filters: { date: targetDate, language },
-        //         data: {
-        //             title: `Murli for ${targetDate}`,
-        //             date: targetDate,
-        //             content: retryContent,
-        //             language: language as string,
-        //             fetchedAt: new Date().toISOString(),
-        //             source: murliUrl
-        //         }
-        //     });
-        // }
-
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         // Read the response content once
         const content = await response.text();
+        
+        // Check for Cloudflare challenge page
+        if (content.includes('Just a moment') || 
+            content.includes('challenge-platform') || 
+            content.includes('cf-chl-opt') ||
+            content.includes('Enable JavaScript and cookies')) {
+            console.error('❌ Cloudflare challenge page detected');
+            throw new Error('Cloudflare challenge page detected - The target server is blocking automated requests. This typically happens in production environments due to IP-based detection.');
+        }
 
         res.json({
             message: 'Murli data fetched successfully',
@@ -172,8 +149,11 @@ const getMurliDataPost = async (req: Request, res: Response) => {
         // });
         const response = await fetchWithBrowserHeaders(murliUrl, {
             method: 'GET',
+            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
+            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
+            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
+            useRotatingUserAgent: true,
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'en-US,en;q=0.9',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Encoding': 'gzip, deflate, br',
@@ -194,6 +174,15 @@ const getMurliDataPost = async (req: Request, res: Response) => {
 
         // Read the response content once
         const content = await response.text();
+        
+        // Check for Cloudflare challenge page
+        if (content.includes('Just a moment') || 
+            content.includes('challenge-platform') || 
+            content.includes('cf-chl-opt') ||
+            content.includes('Enable JavaScript and cookies')) {
+            console.error('❌ Cloudflare challenge page detected');
+            throw new Error('Cloudflare challenge page detected - The target server is blocking automated requests. This typically happens in production environments due to IP-based detection.');
+        }
         
 
         res.json({

@@ -209,7 +209,17 @@ export async function fetchWithBrowserHeaders(
   }
 
   const browserHeaders = getDefaultBrowserHeaders(userAgent);
-  const finalHeaders = { ...browserHeaders, ...headers };
+  // Merge headers: custom headers override defaults, but preserve Sec-Fetch-* headers
+  // These are critical for Cloudflare to recognize requests as coming from real browsers
+  const finalHeaders = { 
+    ...browserHeaders, 
+    ...headers,
+    // Always ensure Sec-Fetch-* headers are present (critical for Cloudflare)
+    'Sec-Fetch-Dest': headers['Sec-Fetch-Dest'] || browserHeaders['Sec-Fetch-Dest'],
+    'Sec-Fetch-Mode': headers['Sec-Fetch-Mode'] || browserHeaders['Sec-Fetch-Mode'],
+    'Sec-Fetch-Site': headers['Sec-Fetch-Site'] || browserHeaders['Sec-Fetch-Site'],
+    'Sec-Fetch-User': headers['Sec-Fetch-User'] || browserHeaders['Sec-Fetch-User'],
+  };
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     const controller = new AbortController();
@@ -233,8 +243,29 @@ export async function fetchWithBrowserHeaders(
       const response = await fetch(url, fetchOptions);
       
       clearTimeout(timeoutId);
-      const dataTOsee= await response.text()
-      console.log(`✅ Request successful on attempt ${attempt} ${dataTOsee}`);
+      
+      // Check for Cloudflare challenge without consuming the response
+      const contentType = response.headers.get('content-type') || '';
+      const cfRay = response.headers.get('cf-ray');
+      if (cfRay && contentType.includes('text/html')) {
+        // Clone response to check content without consuming original
+        const clonedResponse = response.clone();
+        const text = await clonedResponse.text();
+        if (text.includes('Just a moment') || text.includes('challenge-platform')) {
+          console.log(`⚠️ Cloudflare challenge detected on attempt ${attempt}`);
+          if (attempt < retries) {
+            // Wait longer before retry for Cloudflare challenges
+            const delay = retryDelay * Math.pow(2, attempt) * 2;
+            console.log(`⏳ Waiting ${delay}ms before retry (Cloudflare challenge)...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          } else {
+            throw new Error('Cloudflare challenge page detected - JavaScript challenge cannot be solved with fetch()');
+          }
+        }
+      }
+      
+      console.log(`✅ Request successful on attempt ${attempt}`);
       return response;
       
     } catch (error) {
@@ -307,6 +338,32 @@ export const globalRateLimiter = new RateLimiter();
 // ============================================
 
 /**
+ * Check if response is a Cloudflare challenge page
+ */
+export async function isCloudflareChallenge(response: Response): Promise<boolean> {
+  const contentType = response.headers.get('content-type') || '';
+  
+  // Check for Cloudflare challenge indicators in headers
+  const cfRay = response.headers.get('cf-ray');
+  const server = response.headers.get('server') || '';
+  
+  if (cfRay || server.includes('cloudflare')) {
+    // Read a sample of the response to check for challenge page
+    const text = await response.text();
+    const isChallenge = text.includes('Just a moment') || 
+                       text.includes('challenge-platform') ||
+                       text.includes('cf-chl-opt') ||
+                       text.includes('Enable JavaScript and cookies');
+    
+    // Create a new Response with the same body for further use
+    // Note: This is a workaround - ideally we'd clone before reading
+    return isChallenge;
+  }
+  
+  return false;
+}
+
+/**
  * Check if response looks like it's from an anti-bot system
  */
 export async function isBlockedResponse(response: Response): Promise<boolean> {
@@ -315,6 +372,12 @@ export async function isBlockedResponse(response: Response): Promise<boolean> {
   
   // Common anti-bot indicators
   if (status === 403 || status === 429 || status === 503) {
+    return true;
+  }
+  
+  // Check for Cloudflare challenge
+  const isChallenge = await isCloudflareChallenge(response.clone());
+  if (isChallenge) {
     return true;
   }
   
