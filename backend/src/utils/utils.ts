@@ -10,6 +10,8 @@ export function isValidDate(date: string): boolean {
   return d instanceof Date && !isNaN(d.getTime()) && date === d.toISOString().split('T')[0];
 }
 
+export const languageList = ["hi","en","gu","es","th"]
+
 // ============================================
 // USER AGENT MANAGEMENT
 // ============================================
@@ -326,3 +328,142 @@ export async function isBlockedResponse(response: Response): Promise<boolean> {
   
   return false;
 }
+
+// ============================================
+// CACHING UTILITIES
+// ============================================
+
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+  expiresAt: number;
+}
+
+class CacheManager {
+  private cache: Map<string, CacheEntry> = new Map();
+  private defaultTTL: number; // Time to live in milliseconds
+
+  constructor(defaultTTL: number = 24 * 60 * 60 * 1000) { // Default: 24 hours
+    this.defaultTTL = defaultTTL;
+    
+    // Clean up expired entries every hour
+    setInterval(() => {
+      this.cleanExpiredEntries();
+    }, 60 * 60 * 1000);
+  }
+
+  /**
+   * Generate cache key from date and language
+   */
+  generateKey(date: string, language: string): string {
+    return `murli:${date}:${language}`;
+  }
+
+  /**
+   * Get cached data if available and not expired
+   */
+  get(date: string, language: string): any | null {
+    const key = this.generateKey(date, language);
+    const entry = this.cache.get(key);
+
+    if (!entry) {
+      return null;
+    }
+
+    // Check if entry has expired
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.data;
+  }
+
+  /**
+   * Set cache entry with TTL
+   */
+  set(date: string, language: string, data: any, ttl?: number): void {
+    const key = this.generateKey(date, language);
+    const now = Date.now();
+    const expiresAt = now + (ttl || this.defaultTTL);
+
+    this.cache.set(key, {
+      data,
+      timestamp: now,
+      expiresAt
+    });
+  }
+
+  /**
+   * Check if cache entry exists and is valid
+   */
+  has(date: string, language: string): boolean {
+    const key = this.generateKey(date, language);
+    const entry = this.cache.get(key);
+
+    if (!entry) {
+      return false;
+    }
+
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Delete specific cache entry
+   */
+  delete(date: string, language: string): void {
+    const key = this.generateKey(date, language);
+    this.cache.delete(key);
+  }
+
+  /**
+   * Clear all cache entries
+   */
+  clear(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Remove expired entries from cache
+   */
+  cleanExpiredEntries(): void {
+    const now = Date.now();
+    let cleaned = 0;
+
+    for (const [key, entry] of this.cache.entries()) {
+      if (now > entry.expiresAt) {
+        this.cache.delete(key);
+        cleaned++;
+      }
+    }
+
+    if (cleaned > 0) {
+      console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
+    }
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getStats(): { size: number; entries: Array<{ key: string; age: number; expiresIn: number }> } {
+    const entries = Array.from(this.cache.entries()).map(([key, entry]) => ({
+      key,
+      age: Date.now() - entry.timestamp,
+      expiresIn: entry.expiresAt - Date.now()
+    }));
+
+    return {
+      size: this.cache.size,
+      entries
+    };
+  }
+}
+
+// Global cache manager instance
+// Cache TTL: 24 hours (murlis don't change for a specific date)
+export const murliCache = new CacheManager(24 * 60 * 60 * 1000);

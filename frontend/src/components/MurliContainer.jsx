@@ -28,12 +28,12 @@ function MurliContainer() {
     try {
       let response, html;
       
-      if (!useBackend) {
+      // if (!useBackend) {
         // Use backend API
-        const backendUrl = 
+        const backendUrl = `${import.meta.env.VITE_API_URL}/murli/`;
         // import.meta.env.NODE_ENV === 'production' ? 
-          `https://murli-backend.netlify.app/murli/` 
-          // : `http://localhost:5000/murli/`;
+        // `${import.meta.env.VITE_API_URL}/murli/` 
+        // : `http://localhost:5000/murli/`;
           
         response = await fetch(backendUrl, {
           method: 'POST',
@@ -53,17 +53,17 @@ function MurliContainer() {
         const data = await response.json();
         setMurliContent(data?.data?.content || '');
         
-      } else {
-        // Use direct URL
-        response = await fetch(texturl);
+      // } else {
+      //   // Use direct URL
+      //   response = await fetch(texturl);
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      //   if (!response.ok) {
+      //     throw new Error(`HTTP error! status: ${response.status}`);
+      //   }
         
-        html = await response.text();
-        setMurliContent(html);
-      }
+      //   html = await response.text();
+      //   setMurliContent(html);
+      // }
     } catch (e) {
       console.error('Error fetching murli:', e);
       setError('Failed to load Murli. Please check your connection or try a different date.');
