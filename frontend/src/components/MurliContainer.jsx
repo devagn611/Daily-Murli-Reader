@@ -5,6 +5,10 @@ import DateSelector from './DateSelector';
 import OptimizedAudioPlayer from './AudioPlayer';
 import { fetchMurliWithCache } from '../utils/murliApi';
 import { MURLI_BASE_URL } from '../utils/murliApi';
+import SEOHead from './SEOHead';
+import StructuredData from './StructuredData';
+import { extractMetadata } from '../utils/metadataExtractor';
+import { formatDateForSEO, getLanguageName } from '../utils/seoUtils';
 
 
 const FONT_SIZE_STEP = 2;
@@ -20,6 +24,8 @@ function MurliContainer() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+  const [extractedTitle, setExtractedTitle] = useState(null);
+  const [extractedDescription, setExtractedDescription] = useState(null);
 
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
@@ -37,6 +43,11 @@ function MurliContainer() {
       if (result && result.content) {
         setMurliContent(result.content);
         setError(null); // Explicitly clear error on success
+        
+        // Extract metadata from HTML for SEO
+        const metadata = extractMetadata(result.content, language, date);
+        setExtractedTitle(metadata.title);
+        setExtractedDescription(metadata.description);
       } else {
         throw new Error('No content received from API');
       }
@@ -183,8 +194,30 @@ function MurliContainer() {
     [language, date]
   );
 
+  const formattedDate = formatDateForSEO(date);
+  const langName = getLanguageName(language);
+
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-colors duration-300">
+    <>
+      {/* SEO Meta Tags */}
+      <SEOHead
+        date={date}
+        language={language}
+        title={extractedTitle}
+        description={extractedDescription}
+        content={murliContent}
+      />
+      
+      {/* Structured Data */}
+      <StructuredData
+        date={date}
+        language={language}
+        title={extractedTitle}
+        description={extractedDescription}
+        content={murliContent}
+      />
+
+      <article className="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-colors duration-300" lang={language}>
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           {/* Date and Language Selectors */}
@@ -250,14 +283,25 @@ function MurliContainer() {
             </button>
           </div>
         ) : (
-          <div
-            style={{ fontSize: `${fontSize}px` }}
-            className="prose prose-lg max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: murliContent }}
-          />
+          <section className="murli-content">
+            <header className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Daily Murli - {formattedDate}
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                <time dateTime={date}>{formattedDate}</time> • {langName}
+              </p>
+            </header>
+            <div
+              style={{ fontSize: `${fontSize}px` }}
+              className="prose prose-lg max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: murliContent }}
+            />
+          </section>
         )}
       </div>
-    </div>
+      </article>
+    </>
   );
 }
 
