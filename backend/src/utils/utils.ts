@@ -233,7 +233,7 @@ export async function fetchWithBrowserHeaders(
       const response = await fetch(url, fetchOptions);
       
       clearTimeout(timeoutId);
-      console.log(`✅ Request successful on attempt ${attempt}`);
+      console.log(`✅ Request successful on attempt ${attempt} ${response.text()}`);
       return response;
       
     } catch (error) {
