@@ -24,6 +24,7 @@ function MurliContainer() {
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setMurliContent(''); // Clear previous content while loading
     
     try {
       // Fetch directly from madhubanmurli.org using the frontend helper
@@ -32,7 +33,13 @@ function MurliContainer() {
         language,
       });
       
-      setMurliContent(result.content);
+      // Only set content if we got a successful result
+      if (result && result.content) {
+        setMurliContent(result.content);
+        setError(null); // Explicitly clear error on success
+      } else {
+        throw new Error('No content received from API');
+      }
     } catch (e) {
       console.error('Error fetching murli:', e);
       
@@ -45,7 +52,8 @@ function MurliContainer() {
           'then return here and click Retry.'
         );
       } else {
-        setError('Failed to load Murli. Please check your connection or try a different date.');
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+        setError(`Failed to load Murli: ${errorMessage}. Please check your connection or try a different date/language.`);
       }
       setMurliContent('');
     } finally {
@@ -171,7 +179,7 @@ function MurliContainer() {
   );
 
   const audioSrc = useMemo(
-    () => `${MURLI_BASE_URL}/hi/mp3/murli-${date}.mp3`,
+    () => `${MURLI_BASE_URL}/murlis/${language}/mp3/murli-${date}.mp3`,
     [language, date]
   );
 
@@ -182,7 +190,7 @@ function MurliContainer() {
           {/* Date and Language Selectors */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <DateSelector date={date} onDateChange={handleDateChange} />
-            <Select onValueChange={handleLanguageChange} defaultValue={language}>
+            <Select onValueChange={handleLanguageChange} value={language}>
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>

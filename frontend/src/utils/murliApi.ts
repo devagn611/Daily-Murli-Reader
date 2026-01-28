@@ -144,17 +144,21 @@ export function setCachedMurli(result: MurliFetchResult): void {
  * Fetch Murli with caching support
  */
 export async function fetchMurliWithCache(options: MurliFetchOptions): Promise<MurliFetchResult> {
-  // Check cache first
+  // Check cache first - ensure it matches both date AND language
   const cached = getCachedMurli(options.date, options.language);
-  if (cached) {
+  if (cached && cached.language === options.language && cached.date === options.date) {
     return cached;
   }
 
   // Fetch fresh data
   const result = await fetchMurli(options);
   
-  // Cache the result
-  setCachedMurli(result);
+  // Validate result before caching
+  if (result && result.content && result.language === options.language && result.date === options.date) {
+    // Cache the result
+    setCachedMurli(result);
+    return result;
+  }
   
-  return result;
+  throw new Error('Invalid response: content, language, or date mismatch');
 }
