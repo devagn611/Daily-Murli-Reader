@@ -60,15 +60,15 @@ export async function fetchMurli(options: MurliFetchOptions): Promise<MurliFetch
     const html = await response.text();
 
     // Check for Cloudflare challenge page
-    if (isCloudflareChallenge(html)) {
-      const error: MurliFetchError = {
-        error: 'Cloudflare challenge detected',
-        message: 'Please open madhubanmurli.org in a separate tab, complete any security check, then return here and retry.',
-        isCloudflareChallenge: true,
-        sourceUrl: murliUrl,
-      };
-      throw error;
-    }
+    // if (isCloudflareChallenge(html)) {
+    //   const error: MurliFetchError = {
+    //     error: 'Cloudflare challenge detected',
+    //     message: 'Please open madhubanmurli.org in a separate tab, complete any security check, then return here and retry.',
+    //     isCloudflareChallenge: true,
+    //     sourceUrl: murliUrl,
+    //   };
+    //   throw error;
+    // }
 
     return {
       content: html,
