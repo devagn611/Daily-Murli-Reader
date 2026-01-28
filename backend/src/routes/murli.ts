@@ -10,324 +10,99 @@ import {
 
 
 // Get all murlis or filter by date
+// DEPRECATED: This endpoint no longer fetches Murli HTML directly.
+// The frontend now fetches Murli HTML directly from madhubanmurli.org to bypass Cloudflare challenges.
 const getMurliData = async (req: Request, res: Response) => {
     console.log('📅 GET Received request for murli data with query:', req.query);
     
-    try {
-        const { date, language = 'hi' } = req.query;
-        const targetDate = date as string || new Date().toISOString().split('T')[0];
+    const { date, language = 'hi' } = req.query;
+    const targetDate = date as string || new Date().toISOString().split('T')[0];
 
-        if (date && !isValidDate(targetDate)) {
-            return res.status(400).json({
-                error: 'Invalid date format',
-                message: 'Date must be in YYYY-MM-DD format'
-            });
-        }
-
-        // Apply rate limiting
-        await globalRateLimiter.waitIfNeeded();
-
-        // Construct the URL for fetching murli data
-        const baseUrl = process.env.API_BASE_URL || '';
-       
-        const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${targetDate}.html`;
-       
-
-        // await getRandomDelay(500, 1500);
-
-        const response = await fetchWithBrowserHeaders(murliUrl, {
-            method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
-            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
-            useRotatingUserAgent: true,
-            headers: {
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Cache-Control': 'no-cache',
-                'DNT': '1',
-                'Referer': 'https://madhubanmurli.org/',
-                'Origin': 'https://madhubanmurli.org',
-                'Upgrade-Insecure-Requests': '1'
-            }
-        });
-
-        console.log('✅ Fetched murli URL - Status:', response.status, response.statusText);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        // Read the response content once
-        const content = await response.text();
-        
-        // Check for Cloudflare challenge page
-        if (content.includes('Just a moment') || 
-            content.includes('challenge-platform') || 
-            content.includes('cf-chl-opt') ||
-            content.includes('Enable JavaScript and cookies')) {
-            console.error('❌ Cloudflare challenge page detected');
-            throw new Error('Cloudflare challenge page detected - The target server is blocking automated requests. This typically happens in production environments due to IP-based detection.');
-        }
-
-        res.json({
-            message: 'Murli data fetched successfully',
-            filters: { date: targetDate, language },
-            data: {
-                title: `Murli for ${targetDate}`,
-                date: targetDate,
-                content: content,
-                language: language as string,
-                fetchedAt: new Date().toISOString(),
-                source: murliUrl
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching murli data:', error);
-        
-        let statusCode = 500;
-        let errorMessage = 'Unknown error occurred';
-        
-        if (error instanceof Error) {
-            if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-                statusCode = 408; // Request Timeout
-                errorMessage = 'Request timed out. The external service is taking too long to respond.';
-            } else if (error.message.includes('fetch')) {
-                statusCode = 503; // Service Unavailable
-                errorMessage = 'External service is currently unavailable. Please try again later.';
-            } else {
-                errorMessage = error.message;
-            }
-        }
-        
-        res.status(statusCode).json({
-            error: 'Failed to fetch murli data',
-            message: errorMessage,
-            timestamp: new Date().toISOString(),
-            requestId: Math.random().toString(36).substring(7) // For debugging
+    if (date && !isValidDate(targetDate)) {
+        return res.status(400).json({
+            error: 'Invalid date format',
+            message: 'Date must be in YYYY-MM-DD format'
         });
     }
+
+    // Return deprecation message
+    res.status(410).json({
+        error: 'Endpoint deprecated',
+        message: 'Murli HTML is now fetched directly from madhubanmurli.org in the browser to bypass Cloudflare challenges. Please use the frontend application.',
+        filters: { date: targetDate, language },
+        migration: {
+            note: 'The frontend now handles all Murli HTML fetching directly',
+            reason: 'Cloudflare JavaScript challenges cannot be solved server-side',
+            timestamp: new Date().toISOString()
+        }
+    });
 };
 
 // Get murli data via POST request with payload
+// DEPRECATED: This endpoint no longer fetches Murli HTML directly.
+// The frontend now fetches Murli HTML directly from madhubanmurli.org to bypass Cloudflare challenges.
 const getMurliDataPost = async (req: Request, res: Response) => {
     console.log('📅 Received POST request for murli data with body:', req.body);
     
-    try {
-        const { date, language = 'hi' } = req.body;
-        const targetDate = date || new Date().toISOString().split('T')[0];
+    const { date, language = 'hi' } = req.body;
+    const targetDate = date || new Date().toISOString().split('T')[0];
 
-        if (date && !isValidDate(targetDate)) {
-            return res.status(400).json({
-                error: 'Invalid date format',
-                message: 'Date must be in YYYY-MM-DD format'
-            });
-        }
-
-        const baseUrl = process.env.API_BASE_URL || '' ;
-        const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${targetDate}.html`;
-        
-
-        // Add delay to avoid being detected as bot
-        // await getRandomDelay(1000, 1200);
-        
-        // Fetch with enhanced browser-like headers 
-        // const response = await fetchWithBrowserHeaders(murliUrl, {
-        //     method: 'GET',
-        //     timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
-        //     retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-        //     retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
-        //     useRandomUserAgent: true,
-        //     headers: {
-        //         'Referer': 'https://madhubanmurli.org/',
-        //         'Origin': 'https://madhubanmurli.org',
-        //         'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
-        //         'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
-        //     }
-        // });
-        const response = await fetchWithBrowserHeaders(murliUrl, {
-            method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '15000'),
-            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
-            useRotatingUserAgent: true,
-            headers: {
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Cache-Control': 'no-cache',
-                'DNT': '1',
-                'Referer': 'https://madhubanmurli.org/',
-                'Origin': 'https://madhubanmurli.org',
-                'Upgrade-Insecure-Requests': '1'
-            }
-        });
-
-        console.log('✅ Fetched murli URL - Status:', response.status, response.statusText , murliUrl , );
-        
-        // Check if response is successful first
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        // Read the response content once
-        const content = await response.text();
-        
-        // Check for Cloudflare challenge page
-        if (content.includes('Just a moment') || 
-            content.includes('challenge-platform') || 
-            content.includes('cf-chl-opt') ||
-            content.includes('Enable JavaScript and cookies')) {
-            console.error('❌ Cloudflare challenge page detected');
-            throw new Error('Cloudflare challenge page detected - The target server is blocking automated requests. This typically happens in production environments due to IP-based detection.');
-        }
-        
-
-        res.json({
-            message: 'Murli data fetched successfully',
-            filters: { date: targetDate, language },
-            data: {
-                title: `Murli for ${targetDate}`,
-                date: targetDate,
-                content: content,
-                language: language as string,
-                fetchedAt: new Date().toISOString(),
-                source: murliUrl
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Error fetching murli data:', error);
-        
-        res.status(500).json({
-            error: 'Failed to fetch murli data',
-            message: error instanceof Error ? error.message : 'Unknown error occurred',
-            timestamp: new Date().toISOString()
+    if (date && !isValidDate(targetDate)) {
+        return res.status(400).json({
+            error: 'Invalid date format',
+            message: 'Date must be in YYYY-MM-DD format'
         });
     }
+
+    // Return deprecation message
+    res.status(410).json({
+        error: 'Endpoint deprecated',
+        message: 'Murli HTML is now fetched directly from madhubanmurli.org in the browser to bypass Cloudflare challenges. Please use the frontend application.',
+        filters: { date: targetDate, language },
+        migration: {
+            note: 'The frontend now handles all Murli HTML fetching directly',
+            reason: 'Cloudflare JavaScript challenges cannot be solved server-side',
+            timestamp: new Date().toISOString()
+        }
+    });
 };
 
 // Get murli by specific date
+// DEPRECATED: This endpoint no longer fetches Murli HTML directly.
+// The frontend now fetches Murli HTML directly from madhubanmurli.org to bypass Cloudflare challenges.
 const getMurliByDate = async (req: Request, res: Response) => {
-    try {
-        const { date } = req.params;
-        const { language = 'hi' } = req.query;
+    const { date } = req.params;
+    const { language = 'hi' } = req.query;
 
-        // Validate date format (YYYY-MM-DD)
-        if (!isValidDate(date)) {
-            return res.status(400).json({
-                error: 'Invalid date format',
-                message: 'Date must be in YYYY-MM-DD format'
-            });
-        }
-
-        const languageStr = language as string;
-        if (!languageList.includes(languageStr)) {
-            return res.status(400).json({
-                error: 'Invalid language',
-                message: `Language must be one of: ${languageList.join(', ')}`,
-                provided: languageStr,
-                available: languageList
-            });
-        }
-
-        // Apply rate limiting
-        await globalRateLimiter.waitIfNeeded();
-
-        // Construct the URL for fetching specific murli
-        const baseUrl = process.env.API_BASE_URL || '' ;
-        const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${date}.html`;
-        
-        console.log(`🔍 Fetching specific murli for ${date} from: ${murliUrl}`);
-
-        // Add human-like delay
-        await getRandomDelay(500, 1500);
-
-        // Fetch with enhanced browser-like headers
-        const response = await fetchWithBrowserHeaders(murliUrl, {
-            method: 'GET',
-            timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
-            retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-            retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
-            useRandomUserAgent: true,
-            headers: {
-                'Referer': 'https://madhubanmurli.org/',
-                'Origin': 'https://madhubanmurli.org',
-                'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
-                'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
-            }
-        });
-
-        // Check if response indicates blocking
-        if (await isBlockedResponse(response)) {
-            console.log('⚠️ Detected potential blocking, implementing fallback strategy...');
-            await getRandomDelay(1000, 1500);
-            
-            // Retry with different approach
-            const retryResponse = await fetchWithBrowserHeaders(murliUrl, {
-                method: 'GET',
-                timeout: parseInt(process.env.REQUEST_TIMEOUT || '20000'),
-                useRandomUserAgent: true,
-                retries: 2
-            });
-            
-            if (!retryResponse.ok) {
-                throw new Error(`HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
-            }
-            
-            const retryContent = await retryResponse.text();
-            return res.json({
-                message: `Murli for ${date} (recovered)`,
-                data: {
-                    title: `Murli for ${date}`,
-                    date,
-                    content: retryContent,
-                    language: language as string,
-                    fetchedAt: new Date().toISOString(),
-                    source: murliUrl,
-                    recoveryMode: true
-                }
-            });
-        }
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                return res.status(404).json({
-                    error: 'Murli not found',
-                    message: `No murli available for ${date} in ${language}`,
-                    date,
-                    language
-                });
-            }
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const content = await response.text();
-
-        res.json({
-            message: `Murli for ${date}`,
-            data: {
-                title: `Murli for ${date}`,
-                date,
-                content: content,
-                language: language as string,
-                fetchedAt: new Date().toISOString(),
-                source: murliUrl
-            }
-        });
-
-    } catch (error) {
-        console.error(`❌ Error fetching murli for ${req.params.date}:`, error);
-        
-        res.status(500).json({
-            error: 'Failed to fetch murli',
-            message: error instanceof Error ? error.message : 'Unknown error occurred',
-            date: req.params.date,
-            timestamp: new Date().toISOString()
+    // Validate date format (YYYY-MM-DD)
+    if (!isValidDate(date)) {
+        return res.status(400).json({
+            error: 'Invalid date format',
+            message: 'Date must be in YYYY-MM-DD format'
         });
     }
+
+    const languageStr = language as string;
+    if (!languageList.includes(languageStr)) {
+        return res.status(400).json({
+            error: 'Invalid language',
+            message: `Language must be one of: ${languageList.join(', ')}`,
+            provided: languageStr,
+            available: languageList
+        });
+    }
+
+    // Return deprecation message
+    res.status(410).json({
+        error: 'Endpoint deprecated',
+        message: 'Murli HTML is now fetched directly from madhubanmurli.org in the browser to bypass Cloudflare challenges. Please use the frontend application.',
+        filters: { date, language },
+        migration: {
+            note: 'The frontend now handles all Murli HTML fetching directly',
+            reason: 'Cloudflare JavaScript challenges cannot be solved server-side',
+            timestamp: new Date().toISOString()
+        }
+    });
 };
 
 // Get available languages
