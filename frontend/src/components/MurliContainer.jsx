@@ -3,6 +3,7 @@ import { Calendar, Download, ZoomIn, ZoomOut, RefreshCw,FileAudio } from 'lucide
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import DateSelector from './DateSelector';
 import OptimizedAudioPlayer from './AudioPlayer';
+import { fetchMurliWithCache } from '../utils/murliApi';
 
 
 const FONT_SIZE_STEP = 2;
@@ -22,51 +23,29 @@ function MurliContainer() {
   const fetchMurli = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    const texturl = `${import.meta.env.VITE_API_URL}/${language}/html/murli-${date}.html`;
-    const useBackend = import.meta.env.NODE_ENV === 'production' || import.meta.env.VITE_USE_BACKEND === 'true';
     
     try {
-      let response, html;
+      // Fetch directly from madhubanmurli.org using the frontend helper
+      const result = await fetchMurliWithCache({
+        date,
+        language,
+      });
       
-      // if (!useBackend) {
-        // Use backend API
-        const backendUrl = `${import.meta.env.VITE_API_URL}/murli/`;
-        // import.meta.env.NODE_ENV === 'production' ? 
-        // `${import.meta.env.VITE_API_URL}/murli/` 
-        // : `http://localhost:5000/murli/`;
-          
-        response = await fetch(backendUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            date: date,
-            language: language
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setMurliContent(data?.data?.content || '');
-        
-      // } else {
-      //   // Use direct URL
-      //   response = await fetch(texturl);
-        
-      //   if (!response.ok) {
-      //     throw new Error(`HTTP error! status: ${response.status}`);
-      //   }
-        
-      //   html = await response.text();
-      //   setMurliContent(html);
-      // }
+      setMurliContent(result.content);
     } catch (e) {
       console.error('Error fetching murli:', e);
-      setError('Failed to load Murli. Please check your connection or try a different date.');
+      
+      // Handle Cloudflare challenge errors with a helpful message
+      if (e && typeof e === 'object' && 'isCloudflareChallenge' in e) {
+        const cfError = e;
+        setError(
+          'Cloudflare security check detected. ' +
+          'Please open madhubanmurli.org in a separate tab, complete any security check, ' +
+          'then return here and click Retry.'
+        );
+      } else {
+        setError('Failed to load Murli. Please check your connection or try a different date.');
+      }
       setMurliContent('');
     } finally {
       setIsLoading(false);
@@ -251,7 +230,16 @@ function MurliContainer() {
             <div className="loader"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500">{error}</div>
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
+            <div className="text-center text-red-500 max-w-md">{error}</div>
+            <button
+              onClick={fetchMurli}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </button>
+          </div>
         ) : (
           <div
             style={{ fontSize: `${fontSize}px` }}
