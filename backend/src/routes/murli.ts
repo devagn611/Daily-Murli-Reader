@@ -33,31 +33,9 @@ const getMurliData = async (req: Request, res: Response) => {
         const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${targetDate}.html`;
        
 
-<<<<<<< Updated upstream
-        // Add human-like delay to appear more natural
-        await getRandomDelay(700, 1200);
-
-        // Fetch with enhanced browser-like headers and longer timeout
-        // const response = await fetchWithBrowserHeaders(murliUrl, {
-        //     method: 'GET',
-        //     timeout: parseInt(process.env.REQUEST_TIMEOUT || '1500'),
-        //     retries: parseInt(process.env.REQUEST_RETRIES || '3'),
-        //     retryDelay: parseInt(process.env.REQUEST_RETRY_DELAY || '3000'),
-        //     useRandomUserAgent: true, // Use random instead of rotating for better variety
-        //     headers: {
-        //         'Referer': 'https://madhubanmurli.org/',
-        //         'Origin': 'https://madhubanmurli.org',
-        //         'X-Forwarded-For': '192.168.1.' + Math.floor(Math.random() * 255),
-        //         'X-Real-IP': '192.168.1.' + Math.floor(Math.random() * 255)
-        //     }
-        // });
-
-        const response = await fetch(murliUrl, {
-=======
         // await getRandomDelay(500, 1500);
 
         const response = await fetchWithBrowserHeaders(murliUrl, {
->>>>>>> Stashed changes
             method: 'GET',
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -74,9 +52,6 @@ const getMurliData = async (req: Request, res: Response) => {
 
         console.log('✅ Fetched murli URL - Status:', response.status, response.statusText);
         
-<<<<<<< Updated upstream
-        // Check if response is successful first
-=======
         // Check if response indicates blocking
         // if (await isBlockedResponse(response)) {
         //     console.log('⚠️ Detected potential blocking, adjusting strategy...');
@@ -108,7 +83,6 @@ const getMurliData = async (req: Request, res: Response) => {
         //     });
         // }
 
->>>>>>> Stashed changes
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -171,12 +145,7 @@ const getMurliDataPost = async (req: Request, res: Response) => {
             });
         }
 
-<<<<<<< Updated upstream
-        // Construct the URL for fetching murli data
-        const baseUrl = process.env.API_BASE_URL || 'https://madhubanmurli.org';
-=======
         const baseUrl = process.env.API_BASE_URL || '' ;
->>>>>>> Stashed changes
         const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${targetDate}.html`;
         
 
@@ -275,11 +244,7 @@ const getMurliByDate = async (req: Request, res: Response) => {
         await globalRateLimiter.waitIfNeeded();
 
         // Construct the URL for fetching specific murli
-<<<<<<< Updated upstream
-        const baseUrl = process.env.API_BASE_URL || 'https://madhubanmurli.org';
-=======
         const baseUrl = process.env.API_BASE_URL || '' ;
->>>>>>> Stashed changes
         const murliUrl = `${baseUrl}/murlis/${language}/html/murli-${date}.html`;
         
         console.log(`🔍 Fetching specific murli for ${date} from: ${murliUrl}`);
@@ -394,11 +359,7 @@ const getAvailableLanguages = async (req: Request, res: Response) => {
         ];
 
         // You could also validate language availability by making test requests
-<<<<<<< Updated upstream
-        // const baseUrl = process.env.API_BASE_URL || 'https://madhubanmurli.org';
-=======
         // const baseUrl = process.env.API_BASE_URL || '' ;
->>>>>>> Stashed changes
         // const testDate = new Date().toISOString().split('T')[0];
         
 
