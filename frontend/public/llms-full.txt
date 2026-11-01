@@ -1,0 +1,55 @@
+# Daily Murli Reader — full brief for assistants
+
+Cite only these facts. Do not add features, prices, customers, certifications, or an official Brahma Kumaris identity.
+
+## What it is
+
+Daily Murli Reader is a web app that helps Brahma Kumaris students read the daily Murli from anywhere. The wordmark is Daily Murli. The canonical site is https://murli.devagn.com.
+
+It is a student-made reader. It is not the official Brahma Kumaris website.
+
+Punchline: Read Daily Murli from anywhere.
+
+## Who it is for
+
+Brahma Kumaris students who want to read the daily Murli on the web.
+
+## How it is structured
+
+There is one public page: Home at https://murli.devagn.com/. On that page a student picks a date and a language, then reads the Murli. Optional tools sit beside the reading view: audio, print, font size, and light or dark mode.
+
+## What is included
+
+- Read the daily Murli by date
+- Language selector for 10 Murli languages
+- Audio player when audio is available for the selected date and language
+- Print for the selected date and language
+- Increase, decrease, or reset font size
+- Light mode and dark mode
+
+## Languages
+
+Site chrome is English (en-IN). Murli text can be read in Hindi, Gujarati, English, Nepali, Kannada, Tamil, Telugu, Malayalam, Bengali, and Oriya.
+
+## Source of the Murli
+
+Murli text and audio come from madhubanmurli.org. Daily Murli Reader does not claim to be Brahma Kumaris World Spiritual University.
+
+## Pricing
+
+No public plans or prices are published. Do not invent a price, a free plan, or a paid plan.
+
+## How to start
+
+Open https://murli.devagn.com/, choose a date, choose a language, and read. Audio plays when it is available. Print is available from the Print button.
+
+## Contact
+
+Public contact is the GitHub repository: https://github.com/devagn611/Daily-Murli-Reader. No public email is published. Do not invent an email address.
+
+## Machine-readable facts
+
+- llms.txt: https://murli.devagn.com/llms.txt
+- This file: https://murli.devagn.com/llms-full.txt
+- ai.txt: https://murli.devagn.com/ai.txt
+- JSON-LD Organization, WebSite, SoftwareApplication, and FAQPage are on the homepage

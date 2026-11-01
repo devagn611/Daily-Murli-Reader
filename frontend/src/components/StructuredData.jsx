@@ -4,8 +4,16 @@ import {
   formatDateForSEO,
   getLanguageName,
   getCanonicalUrl,
-  getBaseUrl,
 } from '../utils/seoUtils';
+import { site } from '../content/site';
+import {
+  organizationGraph,
+  websiteGraph,
+  softwareApplicationGraph,
+  faqPageGraph,
+  jsonLdScript,
+  absoluteUrl,
+} from '../content/seo';
 
 /**
  * StructuredData component for JSON-LD schema markup
@@ -23,39 +31,18 @@ export default function StructuredData({
   description,
   content,
 }) {
-  const baseUrl = getBaseUrl();
   const canonicalUrl = getCanonicalUrl(date, language);
   const formattedDate = formatDateForSEO(date);
   const langName = getLanguageName(language);
 
-  // Organization Schema
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Brahma Kumaris World Spiritual University',
-    alternateName: 'BK',
-    url: 'https://www.brahmakumaris.org',
-    logo: `${baseUrl}/brahmakumaris_logo.png`,
-    sameAs: [
-      'https://www.facebook.com/brahmakumaris',
-      'https://www.twitter.com/BrahmaKumaris',
-      'https://www.instagram.com/brahmakumaris',
-      'https://www.youtube.com/user/brahmakumaris',
-    ],
-    contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'Spiritual Guidance',
-      availableLanguage: ['Hindi', 'Gujarati', 'English', 'Nepali', 'Kannada', 'Tamil', 'Telugu', 'Malayalam', 'Bengali', 'Oriya'],
-    },
-  };
-
-  // Article Schema
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: title || `Daily Murli - ${formattedDate} - ${langName}`,
-    description: description || `Read Daily Murli from Brahma Kumaris World Spiritual University in ${langName}. Today's spiritual message for ${formattedDate}.`,
-    image: `${baseUrl}/brahmakumaris_logo.png`,
+    description:
+      description ||
+      `Read Daily Murli from Brahma Kumaris World Spiritual University in ${langName}. Today's spiritual message for ${formattedDate}.`,
+    image: absoluteUrl(site.ogImagePath),
     datePublished: new Date(date).toISOString(),
     dateModified: new Date(date).toISOString(),
     author: {
@@ -63,89 +50,36 @@ export default function StructuredData({
       name: 'Brahma Kumaris World Spiritual University',
     },
     publisher: {
-      '@type': 'Organization',
-      name: 'Brahma Kumaris World Spiritual University',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/brahmakumaris_logo.png`,
-      },
+      '@id': `${site.url}/#organization`,
     },
+    isBasedOn: site.contentSource,
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': canonicalUrl,
     },
-    articleBody: content ? content.replace(/<[^>]+>/g, '').substring(0, 500) : description,
+    articleBody: content
+      ? content.replace(/<[^>]+>/g, '').substring(0, 500)
+      : description,
     inLanguage: language,
     keywords: `Brahma Kumaris, Daily Murli, Madhuban Murli, ${langName}, Spiritual Reading`,
-  };
-
-  // BreadcrumbList Schema
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Daily Murli',
-        item: `${baseUrl}/?date=${date}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: formattedDate,
-        item: `${baseUrl}/?date=${date}&lang=${language}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 4,
-        name: langName,
-        item: canonicalUrl,
-      },
-    ],
-  };
-
-  // WebSite Schema with SearchAction
-  const websiteSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Daily Murli Reader',
-    url: baseUrl,
-    description: 'Read Daily Murli from Brahma Kumaris World Spiritual University. Available in multiple languages.',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Brahma Kumaris World Spiritual University',
-    },
-    inLanguage: ['hi', 'gu', 'en', 'ne', 'kn', 'ta', 'te', 'ml', 'bn', 'or'],
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/?date={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
   };
 
   return (
     <Helmet>
       <script type="application/ld+json">
-        {JSON.stringify(organizationSchema)}
+        {jsonLdScript(organizationGraph())}
       </script>
       <script type="application/ld+json">
-        {JSON.stringify(articleSchema)}
+        {jsonLdScript(websiteGraph())}
       </script>
       <script type="application/ld+json">
-        {JSON.stringify(breadcrumbSchema)}
+        {jsonLdScript(softwareApplicationGraph())}
       </script>
       <script type="application/ld+json">
-        {JSON.stringify(websiteSchema)}
+        {jsonLdScript(faqPageGraph())}
+      </script>
+      <script type="application/ld+json">
+        {jsonLdScript(articleSchema)}
       </script>
     </Helmet>
   );

@@ -31,7 +31,7 @@ export default function Header() {
             <a
               href="/"
               className="flex items-center space-x-3 rtl:space-x-reverse"
-              aria-label="Daily Murli Reader - Home"
+              aria-label="Daily Murli Reader home"
             >
               <img src={headerLogo} className="h-8 w-auto" alt="Brahma Kumaris World Spiritual University Logo" width="32" height="32" />
               <span className="self-center text-xl font-semibold whitespace-nowrap text-gray-800 dark:text-white">

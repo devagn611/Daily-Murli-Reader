@@ -2,18 +2,9 @@
  * SEO utility functions for generating URLs, keywords, and language mappings
  */
 
-export const SUPPORTED_LANGUAGES = [
-  { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
-  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'ne', name: 'Nepali', nativeName: 'नेपाली' },
-  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
-  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
-  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
-  { code: 'or', name: 'Oriya', nativeName: 'ଓଡ଼ିଆ' },
-] as const;
+import { site, SITE_URL } from '../content/site';
+
+export const SUPPORTED_LANGUAGES = site.murliLanguages;
 
 export type LanguageCode = typeof SUPPORTED_LANGUAGES[number]['code'];
 
@@ -21,11 +12,7 @@ export type LanguageCode = typeof SUPPORTED_LANGUAGES[number]['code'];
  * Get the base URL for the site (used for canonical URLs and Open Graph)
  */
 export function getBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  // Fallback for SSR or when window is not available
-  return 'https://murli.devagn.com'; // Update with your actual domain
+  return SITE_URL;
 }
 
 /**
@@ -73,15 +60,7 @@ export function formatDateForSEO(date: string): string {
  * Generate keywords based on language and date
  */
 export function generateKeywords(language: string, date: string): string[] {
-  const baseKeywords = [
-    'Brahma Kumaris',
-    'Daily Murli',
-    'Madhuban Murli',
-    'Brahma Kumaris Daily Reading',
-    'Spiritual Reading',
-    'BK Murli',
-    'Brahma Kumaris World Spiritual University',
-  ];
+  const baseKeywords = [...site.keywords];
 
   const langKeywords: Record<string, string[]> = {
     hi: ['ब्रह्माकुमारी', 'दैनिक मुरली', 'मधुबन मुरली', 'ब्रह्माकुमारी दैनिक मुरली'],
