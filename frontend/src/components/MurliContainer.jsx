@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calendar, Download, ZoomIn, ZoomOut, RefreshCw,FileAudio } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
+import { Download, ZoomIn, ZoomOut, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, parse, addDays } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import DateSelector from './DateSelector';
 import OptimizedAudioPlayer from './AudioPlayer';
+import IconButton from './ui/IconButton';
 import { fetchMurliWithCache } from '../utils/murliApi';
 import { MURLI_BASE_URL } from '../utils/murliApi';
 import SEOHead from './SEOHead';
@@ -97,6 +100,11 @@ function MurliContainer() {
 
   const handleDateChange = (e) => setDate(e.target.value);
   const handleLanguageChange = (value) => setLanguage(value);
+
+  const shiftDay = (delta) => {
+    const parsed = parse(date, 'yyyy-MM-dd', new Date());
+    setDate(format(addDays(parsed, delta), 'yyyy-MM-dd'));
+  };
 
   const increaseFontSize = () => setFontSize((size) => Math.min(size + FONT_SIZE_STEP, MAX_FONT_SIZE));
   const decreaseFontSize = () => setFontSize((size) => Math.max(size - FONT_SIZE_STEP, MIN_FONT_SIZE));
@@ -215,6 +223,11 @@ function MurliContainer() {
 
   const formattedDate = formatDateForSEO(date);
   const langName = getLanguageName(language);
+  const [toolbarSlot, setToolbarSlot] = useState(null);
+
+  useEffect(() => {
+    setToolbarSlot(document.getElementById('reader-toolbar-controls'));
+  }, []);
 
   return (
     <>
@@ -236,17 +249,33 @@ function MurliContainer() {
         content={murliContent}
       />
 
-      <article className="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-colors duration-300" lang={language}>
-      <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          {/* Date and Language Selectors */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <button
+        type="button"
+        className="day-nav-btn fixed left-2 md:left-4 top-1/2 -translate-y-1/2 z-40"
+        onClick={() => shiftDay(-1)}
+        aria-label="Previous day"
+      >
+        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="day-nav-btn fixed right-2 md:right-4 top-1/2 -translate-y-1/2 z-40"
+        onClick={() => shiftDay(1)}
+        aria-label="Next day"
+      >
+        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+      </button>
+
+      {toolbarSlot &&
+        createPortal(
+          <>
             <DateSelector date={date} onDateChange={handleDateChange} />
+            <span className="glass-sep hidden sm:inline" aria-hidden="true">|</span>
             <Select onValueChange={handleLanguageChange} value={language}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="glass-pill-btn h-9 min-w-0 flex-1 justify-center whitespace-nowrap sm:w-auto sm:min-w-[132px] sm:flex-none sm:justify-between border-black/[0.05] dark:border-white/[0.08] focus:ring-amber-400/80 focus:ring-offset-0">
                 <SelectValue placeholder="Select a language" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="glass-popover">
                 {languageOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -254,37 +283,39 @@ function MurliContainer() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+            <span className="glass-sep hidden sm:inline" aria-hidden="true">|</span>
+            <div className="flex basis-full items-center justify-center gap-2 sm:basis-auto sm:justify-start">
+              <button
+                type="button"
+                onClick={handlePrint}
+                disabled={isLoading || error || !murliContent}
+                className="glass-pill-btn"
+                aria-label="Print Murli"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Print</span>
+              </button>
+              <IconButton onClick={increaseFontSize} label="Increase font size">
+                <ZoomIn className="h-5 w-5" aria-hidden="true" />
+              </IconButton>
+              <IconButton onClick={decreaseFontSize} label="Decrease font size">
+                <ZoomOut className="h-5 w-5" aria-hidden="true" />
+              </IconButton>
+              <IconButton onClick={resetFontSize} label="Reset font size">
+                <RefreshCw className="h-5 w-5" aria-hidden="true" />
+              </IconButton>
+            </div>
+          </>,
+          toolbarSlot
+        )}
 
-          {/* Audio Player */}
-          <div className="w-full lg:flex-1 lg:max-w-md lg:mx-4">
-           {audioSrc && <OptimizedAudioPlayer src={audioSrc} />}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-2 sm:justify-start lg:justify-end">
-            <button 
-              onClick={handlePrint}
-              disabled={isLoading || error || !murliContent}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors"
-              title="Print Murli"
-            >
-              <Download className="h-4 w-4" />
-              Print
-            </button>
-            <button onClick={increaseFontSize} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Increase font size">
-              <ZoomIn className="h-5 w-5" />
-            </button>
-            <button onClick={decreaseFontSize} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Decrease font size">
-              <ZoomOut className="h-5 w-5" />
-            </button>
-            <button onClick={resetFontSize} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Reset font size">
-              <RefreshCw className="h-5 w-5" />
-            </button>
-          </div>
+      {audioSrc && (
+        <div className="mb-4">
+          <OptimizedAudioPlayer src={audioSrc} />
         </div>
-      </div>
+      )}
 
+      <article className="bg-white/80 dark:bg-zinc-900/70 backdrop-blur-sm shadow-[0_10px_40px_rgba(0,0,0,0.06)] rounded-[20px] border border-black/[0.05] dark:border-white/[0.08] transition-colors duration-300" lang={language}>
       <div className="p-4 sm:p-6">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">

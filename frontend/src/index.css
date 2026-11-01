@@ -3,8 +3,13 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  @apply text-gray-900 dark:text-gray-100;
+  background-color: #f7f7f6;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  @apply bg-gray-900;
 }
 
 @layer components {
@@ -12,6 +17,168 @@ body {
     @apply w-12 h-12 border-4 border-blue-500 border-solid rounded-full;
     border-top-color: transparent;
     animation: spin 1s linear infinite;
+  }
+
+  .glass-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+    height: auto;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .glass-bar {
+    background: rgba(24, 24, 27, 0.42);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-bar::before {
+    content: "";
+    position: absolute;
+    inset: -50% 35% -50% -15%;
+    background: radial-gradient(ellipse at 20% 50%, rgba(255, 196, 140, 0.18), transparent 68%);
+    pointer-events: none;
+  }
+
+  .dark .glass-bar::before {
+    background: radial-gradient(ellipse at 20% 50%, rgba(255, 176, 110, 0.1), transparent 70%);
+  }
+
+  .glass-bar > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-sep {
+    @apply shrink-0 select-none text-gray-300 dark:text-zinc-600 text-lg leading-none px-1;
+  }
+
+  .glass-icon-btn {
+    @apply inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full
+      bg-white/45 dark:bg-zinc-800/45 text-gray-800 dark:text-zinc-100
+      backdrop-blur-md
+      shadow-[0_4px_12px_rgba(0,0,0,0.06)]
+      transition-all duration-200 ease-out
+      hover:-translate-y-0.5 hover:bg-white/70 dark:hover:bg-zinc-700/70 hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]
+      active:scale-95
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/80
+      disabled:opacity-40 disabled:pointer-events-none disabled:hover:translate-y-0;
+  }
+
+  .glass-pill-btn {
+    @apply inline-flex items-center justify-center gap-2 h-9 shrink-0 rounded-full
+      bg-white/45 dark:bg-zinc-800/45 text-gray-800 dark:text-zinc-100
+      backdrop-blur-md
+      border border-white/50 dark:border-white/[0.12]
+      px-3.5 text-sm font-semibold
+      shadow-[0_4px_12px_rgba(0,0,0,0.06)]
+      transition-all duration-200 ease-out
+      hover:-translate-y-0.5 hover:bg-white/70 dark:hover:bg-zinc-700/70 hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)]
+      active:scale-95
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/80
+      disabled:opacity-40 disabled:pointer-events-none disabled:hover:translate-y-0;
+  }
+
+  .glass-popover {
+    @apply rounded-2xl border border-black/[0.05] dark:border-white/[0.08]
+      bg-white/95 dark:bg-zinc-900/95 p-3 shadow-[0_16px_40px_rgba(0,0,0,0.12)]
+      backdrop-blur-xl
+      data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-1
+      data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-1;
+    animation-duration: 160ms;
+    animation-timing-function: ease-out;
+  }
+
+  .glass-player {
+    position: relative;
+    border-radius: 20px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .dark .glass-player {
+    background: rgba(24, 24, 27, 0.42);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-player::before {
+    content: "";
+    position: absolute;
+    inset: -50% 40% -50% -10%;
+    background: radial-gradient(ellipse at 15% 50%, rgba(255, 196, 140, 0.18), transparent 68%);
+    pointer-events: none;
+  }
+
+  .dark .glass-player::before {
+    background: radial-gradient(ellipse at 15% 50%, rgba(255, 176, 110, 0.1), transparent 70%);
+  }
+
+  .glass-player > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-player .rhap_container {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 4px 2px;
+  }
+
+  .glass-player .rhap_main-controls-button,
+  .glass-player .rhap_volume-button {
+    @apply text-gray-800 dark:text-zinc-100 transition-transform duration-200 ease-out;
+  }
+
+  .glass-player .rhap_main-controls-button {
+    @apply h-10 w-10 rounded-full bg-white/45 dark:bg-zinc-800/45 backdrop-blur-md
+      shadow-[0_4px_12px_rgba(0,0,0,0.06)];
+  }
+
+  .glass-player .rhap_main-controls-button:hover {
+    @apply bg-white/70 dark:bg-zinc-700/70 -translate-y-0.5;
+  }
+
+  .glass-player .rhap_progress-bar,
+  .glass-player .rhap_volume-bar {
+    background: rgba(148, 163, 184, 0.28) !important;
+  }
+
+  .dark .glass-player .rhap_progress-bar,
+  .dark .glass-player .rhap_volume-bar {
+    background: rgba(255, 255, 255, 0.16) !important;
+  }
+
+  .glass-player .rhap_progress-filled,
+  .glass-player .rhap_progress-indicator,
+  .glass-player .rhap_volume-indicator {
+    background: #3b82f6 !important;
+  }
+
+  .glass-player .rhap_time {
+    @apply text-gray-700 dark:text-zinc-300;
+  }
+
+  .day-nav-btn {
+    @apply hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-full
+      bg-white/70 dark:bg-zinc-800/70 text-gray-800 dark:text-zinc-100
+      backdrop-blur-md border border-black/[0.05] dark:border-white/[0.08]
+      opacity-40 shadow-[0_8px_24px_rgba(0,0,0,0.08)]
+      transition-all duration-200 ease-out
+      hover:opacity-100 hover:-translate-y-0.5 hover:bg-white dark:hover:bg-zinc-800
+      active:scale-95
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/80;
   }
 }
 
@@ -25,7 +192,7 @@ body {
   position: absolute;
   left: -999px;
   top: 0;
-  z-index: 100;
+  z-index: 80;
   padding: 0.5rem 1rem;
   background: #111827;
   color: #ffffff;
