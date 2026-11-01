@@ -7,8 +7,9 @@ import {
   getLanguageName,
   generateHreflangUrls,
   generateDefaultDescription,
-  getBaseUrl,
 } from '../utils/seoUtils';
+import { site } from '../content/site';
+import { pageMetadata } from '../content/seo';
 
 /**
  * SEOHead component for dynamic meta tags
@@ -24,71 +25,65 @@ export default function SEOHead({
   language,
   title,
   description,
-  content,
 }) {
+  const home = pageMetadata();
   const langName = getLanguageName(language);
   const formattedDate = formatDateForSEO(date);
   const canonicalUrl = getCanonicalUrl(date, language);
   const hreflangUrls = generateHreflangUrls(date);
   const keywords = generateKeywords(language, date);
-  const baseUrl = getBaseUrl();
 
-  // Generate title
   const pageTitle = title
     ? `${title} | Brahma Kumaris Daily Murli`
     : `Daily Murli - ${formattedDate} - ${langName} | Brahma Kumaris`;
 
-  // Generate description
   const pageDescription =
     description ||
     generateDefaultDescription(date, language) ||
-    `Read Daily Murli from Brahma Kumaris World Spiritual University in ${langName}. Today's spiritual message for ${formattedDate}.`;
-
-  // Generate image URL (using logo as default)
-  const imageUrl = `${baseUrl}/brahmakumaris_logo.png`;
+    site.description;
 
   return (
     <Helmet>
-      {/* Basic Meta Tags */}
       <title>{pageTitle}</title>
       <meta name="description" content={pageDescription} />
       <meta name="keywords" content={keywords.join(', ')} />
-      <meta name="author" content="Brahma Kumaris World Spiritual University" />
+      <meta name="author" content={site.brand} />
+      <meta name="creator" content={site.brand} />
+      <meta name="publisher" content={site.brand} />
+      <meta name="application-name" content={site.brand} />
       <meta name="language" content={language} />
       <link rel="canonical" href={canonicalUrl} />
+      <link rel="alternate" type="text/plain" href={`${site.url}/llms.txt`} title="LLM facts" />
+      <link rel="alternate" type="text/plain" href={`${site.url}/llms-full.txt`} title="LLM full brief" />
 
-      {/* Open Graph Tags */}
       <meta property="og:type" content="article" />
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDescription} />
-      <meta property="og:image" content={imageUrl} />
+      <meta property="og:image" content={home.openGraph.image} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:site_name" content="Daily Murli Reader" />
-      <meta property="og:locale" content={language === 'hi' ? 'hi_IN' : language === 'gu' ? 'gu_IN' : 'en_US'} />
+      <meta property="og:site_name" content={site.brand} />
+      <meta property="og:locale" content={language === 'hi' ? 'hi_IN' : language === 'gu' ? 'gu_IN' : site.locale} />
       <meta property="article:published_time" content={new Date(date).toISOString()} />
       <meta property="article:author" content="Brahma Kumaris World Spiritual University" />
       <meta property="article:section" content="Spiritual Reading" />
       <meta property="article:tag" content={keywords.join(', ')} />
 
-      {/* Twitter Card Tags */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={pageTitle} />
       <meta name="twitter:description" content={pageDescription} />
-      <meta name="twitter:image" content={imageUrl} />
-      <meta name="twitter:site" content="@BrahmaKumaris" />
+      <meta name="twitter:image" content={home.twitter.image} />
 
-      {/* Hreflang Tags for Multi-Language SEO */}
       {hreflangUrls.map(({ lang, url }) => (
         <link key={lang} rel="alternate" hrefLang={lang} href={url} />
       ))}
       <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 
-      {/* HTML Lang Attribute */}
       <html lang={language} />
 
-      {/* Additional Meta Tags */}
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-      <meta name="googlebot" content="index, follow" />
+      <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="bingbot" content="index, follow" />
     </Helmet>
   );

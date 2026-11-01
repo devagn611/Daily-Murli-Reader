@@ -1,0 +1,19 @@
+{
+  "name": "Daily Murli Reader",
+  "short_name": "Daily Murli",
+  "description": "Daily Murli Reader helps Brahma Kumaris students read the daily Murli from anywhere. Available in Hindi, Gujarati, English, and seven more languages.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#000000",
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/brahmakumaris_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

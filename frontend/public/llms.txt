@@ -1,0 +1,24 @@
+# Daily Murli Reader
+
+> Daily Murli Reader helps Brahma Kumaris students read the daily Murli from anywhere, in 10 languages.
+
+Daily Murli Reader is a student-made web reader. It is not the official Brahma Kumaris website.
+
+Who it is for: Brahma Kumaris students.
+
+## Product
+
+- Read the daily Murli by date
+- Choose among 10 Murli languages: Hindi, Gujarati, English, Nepali, Kannada, Tamil, Telugu, Malayalam, Bengali, and Oriya
+- Listen to audio when it is available for the selected date and language
+- Print the Murli
+- Increase, decrease, or reset font size
+- Switch between light and dark mode
+
+## Pages
+
+- [Home](https://murli.devagn.com/): read the daily Murli by date and language
+
+## Contact
+
+GitHub: https://github.com/devagn611/Daily-Murli-Reader

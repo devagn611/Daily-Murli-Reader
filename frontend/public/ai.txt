@@ -1,0 +1,11 @@
+# ai.txt — Daily Murli Reader
+
+Brand: Daily Murli Reader
+Wordmark: Daily Murli
+Canonical: https://murli.devagn.com
+Contact: https://github.com/devagn611/Daily-Murli-Reader
+Short facts: https://murli.devagn.com/llms.txt
+Full brief: https://murli.devagn.com/llms-full.txt
+JSON-LD: Organization, WebSite, SoftwareApplication, and FAQPage on https://murli.devagn.com/
+Audience: Brahma Kumaris students
+Note: Student-made Murli reader. Not the official Brahma Kumaris website.

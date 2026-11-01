@@ -2,18 +2,9 @@
  * SEO utility functions for generating URLs, keywords, and language mappings
  */
 
-export const SUPPORTED_LANGUAGES = [
-  { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
-  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'ne', name: 'Nepali', nativeName: 'नेपाली' },
-  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
-  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
-  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
-  { code: 'or', name: 'Oriya', nativeName: 'ଓଡ଼ିଆ' },
-] as const;
+import { site, SITE_URL } from '../content/site';
+
+export const SUPPORTED_LANGUAGES = site.murliLanguages;
 
 export type LanguageCode = typeof SUPPORTED_LANGUAGES[number]['code'];
 
@@ -21,11 +12,7 @@ export type LanguageCode = typeof SUPPORTED_LANGUAGES[number]['code'];
  * Get the base URL for the site (used for canonical URLs and Open Graph)
  */
 export function getBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  // Fallback for SSR or when window is not available
-  return 'https://murli.devagn.com'; // Update with your actual domain
+  return SITE_URL;
 }
 
 /**
@@ -34,6 +21,64 @@ export function getBaseUrl(): string {
 export function getCanonicalUrl(date: string, language: string): string {
   const baseUrl = getBaseUrl();
   return `${baseUrl}/?date=${date}&lang=${language}`;
+}
+
+const DATE_PARAM_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const DEFAULT_LANGUAGE: LanguageCode = 'hi';
+
+export function getLocalDateString(from: Date = new Date()): string {
+  const year = from.getFullYear();
+  const month = String(from.getMonth() + 1).padStart(2, '0');
+  const day = String(from.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function isValidMurliDate(value: string | null | undefined): value is string {
+  if (!value) {
+    return false;
+  }
+  const match = DATE_PARAM_PATTERN.exec(value);
+  if (!match) {
+    return false;
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(year, month - 1, day);
+  return (
+    parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day
+  );
+}
+
+export function isSupportedLanguage(value: string | null | undefined): value is LanguageCode {
+  return Boolean(value && SUPPORTED_LANGUAGES.some((lang) => lang.code === value));
+}
+
+export function readMurliParamsFromSearch(
+  search: string = typeof window !== 'undefined' ? window.location.search : ''
+): { date: string; language: LanguageCode } {
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+  const dateParam = params.get('date');
+  const langParam = params.get('lang');
+
+  return {
+    date: isValidMurliDate(dateParam) ? dateParam : getLocalDateString(),
+    language: isSupportedLanguage(langParam) ? langParam : DEFAULT_LANGUAGE,
+  };
+}
+
+export function writeMurliParamsToUrl(date: string, language: string): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const nextSearch = `?date=${date}&lang=${language}`;
+  if (window.location.search === nextSearch) {
+    return;
+  }
+  const nextUrl = `${window.location.pathname}${nextSearch}${window.location.hash}`;
+  window.history.replaceState({ date, language }, '', nextUrl);
 }
 
 /**
@@ -73,15 +118,7 @@ export function formatDateForSEO(date: string): string {
  * Generate keywords based on language and date
  */
 export function generateKeywords(language: string, date: string): string[] {
-  const baseKeywords = [
-    'Brahma Kumaris',
-    'Daily Murli',
-    'Madhuban Murli',
-    'Brahma Kumaris Daily Reading',
-    'Spiritual Reading',
-    'BK Murli',
-    'Brahma Kumaris World Spiritual University',
-  ];
+  const baseKeywords = [...site.keywords];
 
   const langKeywords: Record<string, string[]> = {
     hi: ['ब्रह्माकुमारी', 'दैनिक मुरली', 'मधुबन मुरली', 'ब्रह्माकुमारी दैनिक मुरली'],

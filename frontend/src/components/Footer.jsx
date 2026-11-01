@@ -20,6 +20,9 @@ function Footer() {
         <p className="text-sm text-center md:text-left">
           Made with Baba's blessing &<span className="text-red-500"> ❤️</span> by a kumar of BK Gariyadhar
         </p>
+        <nav aria-label="Footer" className="text-sm">
+          <a href="/" className="hover:text-blue-500 dark:hover:text-blue-400">Home</a>
+        </nav>
         <p className="text-sm font-mono">{time.toLocaleTimeString()}</p>
         <p className="text-xs">
           Om Shanti

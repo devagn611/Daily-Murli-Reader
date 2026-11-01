@@ -8,7 +8,12 @@ import { MURLI_BASE_URL } from '../utils/murliApi';
 import SEOHead from './SEOHead';
 import StructuredData from './StructuredData';
 import { extractMetadata } from '../utils/metadataExtractor';
-import { formatDateForSEO, getLanguageName } from '../utils/seoUtils';
+import {
+  formatDateForSEO,
+  getLanguageName,
+  readMurliParamsFromSearch,
+  writeMurliParamsToUrl,
+} from '../utils/seoUtils';
 
 
 const FONT_SIZE_STEP = 2;
@@ -17,9 +22,8 @@ const MAX_FONT_SIZE = 32;
 const MIN_FONT_SIZE = 12;
 
 function MurliContainer() {
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
-  
-  const [language, setLanguage] = useState('hi');
+  const [date, setDate] = useState(() => readMurliParamsFromSearch().date);
+  const [language, setLanguage] = useState(() => readMurliParamsFromSearch().language);
   const [murliContent, setMurliContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,6 +79,21 @@ function MurliContainer() {
   useEffect(() => {
     fetchMurli();
   }, [fetchMurli]);
+
+  useEffect(() => {
+    writeMurliParamsToUrl(date, language);
+  }, [date, language]);
+
+  useEffect(() => {
+    const applySearchParams = () => {
+      const params = readMurliParamsFromSearch(window.location.search);
+      setDate(params.date);
+      setLanguage(params.language);
+    };
+
+    window.addEventListener('popstate', applySearchParams);
+    return () => window.removeEventListener('popstate', applySearchParams);
+  }, []);
 
   const handleDateChange = (e) => setDate(e.target.value);
   const handleLanguageChange = (value) => setLanguage(value);
