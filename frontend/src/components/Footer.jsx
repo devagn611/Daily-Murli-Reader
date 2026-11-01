@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-
+import { useState, useEffect } from 'react';
 
 function Footer() {
   const [time, setTime] = useState(new Date());
@@ -15,18 +14,22 @@ function Footer() {
   }, []);
 
   return (
-    <footer className="w-full p-4 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-sm text-center md:text-left">
-          Made with Baba's blessing &<span className="text-red-500"> ❤️</span> by a kumar of BK Gariyadhar
-        </p>
-        <nav aria-label="Footer" className="text-sm">
-          <a href="/" className="hover:text-blue-500 dark:hover:text-blue-400">Home</a>
-        </nav>
-        <p className="text-sm font-mono">{time.toLocaleTimeString()}</p>
-        <p className="text-xs">
-          Om Shanti
-        </p>
+    <footer className="px-[14px] pb-[14px] pt-2">
+      <div className="glass-bar min-h-[52px] w-full">
+        <div className="flex w-full flex-col items-center gap-1 px-1 text-sm text-gray-600 dark:text-zinc-300 sm:flex-row sm:justify-between">
+          <p className="text-center sm:text-left">
+            Made with Baba's blessing &<span className="text-red-500"> ❤️</span> by a kumar of BK Gariyadhar
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <nav aria-label="Footer">
+              <a href="/" className="hover:text-blue-500 dark:hover:text-blue-400">Home</a>
+            </nav>
+            <span className="glass-sep" aria-hidden="true">|</span>
+            <p className="font-mono tabular-nums">{time.toLocaleTimeString()}</p>
+            <span className="glass-sep" aria-hidden="true">|</span>
+            <p className="text-xs">Om Shanti</p>
+          </div>
+        </div>
       </div>
     </footer>
   );

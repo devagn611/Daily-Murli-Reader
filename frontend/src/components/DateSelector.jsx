@@ -19,21 +19,27 @@ const DateSelector = React.memo(({ date, onDateChange }) => {
   };
 
   const displayDate = format(selectedDate, 'dd MMM yyyy');
+  const shortDate = format(selectedDate, 'dd MMM');
 
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>
-        <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-200 min-w-[140px]">
-          <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span className="text-sm font-medium">{displayDate}</span>
-          <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 ml-auto" />
+        <button
+          type="button"
+          className="glass-pill-btn min-w-0 flex-1 justify-center whitespace-nowrap px-3 h-9 sm:min-w-[148px] sm:flex-none sm:justify-between sm:px-3.5"
+          aria-label={`Choose date, currently ${displayDate}`}
+        >
+          <Calendar className="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+          <span className="text-sm font-semibold whitespace-nowrap sm:hidden">{shortDate}</span>
+          <span className="hidden text-sm font-semibold sm:inline">{displayDate}</span>
+          <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
         </button>
       </Popover.Trigger>
       
       <Popover.Portal>
         <Popover.Content
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50"
-          sideOffset={5}
+          className="glass-popover z-[60]"
+          sideOffset={8}
         >
           <DayPicker
             mode="single"
@@ -64,7 +70,7 @@ const DateSelector = React.memo(({ date, onDateChange }) => {
               day_hidden: "invisible",
             }}
           />
-          <Popover.Arrow className="fill-white dark:fill-gray-800" />
+          <Popover.Arrow className="fill-white dark:fill-zinc-900" />
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

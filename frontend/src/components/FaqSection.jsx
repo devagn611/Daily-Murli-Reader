@@ -3,7 +3,7 @@ import { site } from '../content/site';
 export default function FaqSection() {
   return (
     <section
-      className="mt-8 bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-colors duration-300"
+      className="mt-8 bg-white/80 dark:bg-zinc-900/70 backdrop-blur-sm shadow-[0_10px_40px_rgba(0,0,0,0.06)] rounded-[20px] border border-black/[0.05] dark:border-white/[0.08] overflow-hidden transition-colors duration-300"
       aria-labelledby="faq-heading"
     >
       <div className="p-4 sm:p-6">
