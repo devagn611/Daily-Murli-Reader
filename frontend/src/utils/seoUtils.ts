@@ -23,6 +23,64 @@ export function getCanonicalUrl(date: string, language: string): string {
   return `${baseUrl}/?date=${date}&lang=${language}`;
 }
 
+const DATE_PARAM_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const DEFAULT_LANGUAGE: LanguageCode = 'hi';
+
+export function getLocalDateString(from: Date = new Date()): string {
+  const year = from.getFullYear();
+  const month = String(from.getMonth() + 1).padStart(2, '0');
+  const day = String(from.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function isValidMurliDate(value: string | null | undefined): value is string {
+  if (!value) {
+    return false;
+  }
+  const match = DATE_PARAM_PATTERN.exec(value);
+  if (!match) {
+    return false;
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(year, month - 1, day);
+  return (
+    parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day
+  );
+}
+
+export function isSupportedLanguage(value: string | null | undefined): value is LanguageCode {
+  return Boolean(value && SUPPORTED_LANGUAGES.some((lang) => lang.code === value));
+}
+
+export function readMurliParamsFromSearch(
+  search: string = typeof window !== 'undefined' ? window.location.search : ''
+): { date: string; language: LanguageCode } {
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+  const dateParam = params.get('date');
+  const langParam = params.get('lang');
+
+  return {
+    date: isValidMurliDate(dateParam) ? dateParam : getLocalDateString(),
+    language: isSupportedLanguage(langParam) ? langParam : DEFAULT_LANGUAGE,
+  };
+}
+
+export function writeMurliParamsToUrl(date: string, language: string): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const nextSearch = `?date=${date}&lang=${language}`;
+  if (window.location.search === nextSearch) {
+    return;
+  }
+  const nextUrl = `${window.location.pathname}${nextSearch}${window.location.hash}`;
+  window.history.replaceState({ date, language }, '', nextUrl);
+}
+
 /**
  * Get language name from code
  */
